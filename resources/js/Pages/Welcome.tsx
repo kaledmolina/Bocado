@@ -198,14 +198,14 @@ export default function Welcome({ auth }: PageProps) {
                             href={route('demo.selector')}
                             className="py-3 px-6 bg-orange-600 hover:bg-orange-700 text-white font-black rounded-2xl transition-all text-sm hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-orange-600/15"
                         >
-                            Probar Demo En Vivo ⚡
+                            Demo gratis ⚡
                         </Link>
 
                         <Link
                             href="/simulator"
                             className="py-3 px-6 bg-slate-200/80 hover:bg-slate-350 dark:bg-slate-900/60 dark:hover:bg-slate-900 border border-slate-300 dark:border-gray-800 text-slate-700 hover:text-slate-900 dark:text-gray-300 dark:hover:text-white font-bold rounded-2xl transition-all text-sm hover:scale-[1.02] active:scale-[0.98]"
                         >
-                            Probar Simulador
+                            Simulador gratis
                         </Link>
                     </div>
                 </div>
