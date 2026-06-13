@@ -86,9 +86,22 @@ export default function Authenticated({
                 </header>
             </div>
 
-            <main className="p-6 pt-24 sm:pt-28 max-w-5xl mx-auto w-full space-y-6 flex-1 flex flex-col justify-start">
+            <main className="p-6 pt-24 sm:pt-28 max-w-5xl mx-auto w-full space-y-6 flex-1 flex flex-col justify-start relative">
                 {children}
             </main>
+
+            {user && ['owner@rinconcito.com', 'pedro@rinconcito.com', 'maria@rinconcito.com'].includes(user.email) && (
+                <div className="fixed bottom-6 right-6 z-50 animate-bounce">
+                    <Link
+                        href={route('logout')}
+                        method="post"
+                        as="button"
+                        className="flex items-center gap-1.5 px-5 py-3 bg-orange-600 hover:bg-orange-700 text-white text-xs font-black rounded-full shadow-2xl shadow-orange-500/20 border border-orange-500/35 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                        <span>🔄 Cambiar Rol Demo</span>
+                    </Link>
+                </div>
+            )}
         </div>
     );
 }
