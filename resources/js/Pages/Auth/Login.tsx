@@ -150,14 +150,6 @@ export default function Login({
                         🧑‍🍳 Mesero Demo
                     </a>
                 </div>
-                <div className="mt-2">
-                    <a
-                        href="/demo-login/superadmin"
-                        className="w-full py-2 px-3 bg-white dark:bg-gray-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-gray-750 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400 text-[11px] font-bold rounded-xl transition-all border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm text-center"
-                    >
-                        👑 Super Admin Demo
-                    </a>
-                </div>
             </div>
         </GuestLayout>
     );
