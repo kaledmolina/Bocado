@@ -253,7 +253,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
         if (active && payload && payload.length) {
             return (
                 <div className="bg-gray-900 border border-gray-800 p-3 rounded-2xl shadow-xl text-xs">
-                    <p className="font-bold text-white">{payload[0].name}</p>
+                    <p className="font-bold text-gray-900 dark:text-white">{payload[0].name}</p>
                     <p className="text-orange-400 font-extrabold mt-1">
                         {payload[0].value} usuarios ({((payload[0].value / (users.length || 1)) * 100).toFixed(0)}%)
                     </p>
@@ -312,18 +312,18 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                 {/* Intro */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-2xl font-black text-white">Consola de Control de la Plataforma</h2>
-                        <p className="text-sm text-gray-400 mt-1">Supervisión en vivo de los negocios y cuentas vinculadas.</p>
+                        <h2 className="text-2xl font-black text-gray-900 dark:text-white">Consola de Control de la Plataforma</h2>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Supervisión en vivo de los negocios y cuentas vinculadas.</p>
                     </div>
 
                     {/* Tabs */}
-                    <div className="bg-gray-900 p-1 rounded-2xl border border-gray-850 flex gap-1 self-start md:self-center">
+                    <div className="bg-gray-100 dark:bg-gray-900 p-1 rounded-2xl border border-gray-200 dark:border-gray-850 flex gap-1 self-start md:self-center">
                         <button 
                             onClick={() => setActiveTab('restaurants')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                                 activeTab === 'restaurants' 
                                     ? 'bg-orange-600 text-white shadow-md' 
-                                    : 'text-gray-400 hover:text-gray-250 hover:bg-gray-850'
+                                    : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-250 dark:hover:bg-gray-850 hover:bg-gray-200'
                             }`}
                         >
                             <Building2 className="w-4 h-4" />
@@ -334,7 +334,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                                 activeTab === 'users' 
                                     ? 'bg-orange-600 text-white shadow-md' 
-                                    : 'text-gray-400 hover:text-gray-250 hover:bg-gray-850'
+                                    : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-250 dark:hover:bg-gray-850 hover:bg-gray-200'
                             }`}
                         >
                             <Users className="w-4 h-4" />
@@ -345,10 +345,10 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
 
                 {/* Metrics */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="p-6 bg-gray-900 border border-gray-850 rounded-3xl shadow-sm flex items-center justify-between">
+                    <div className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-850 rounded-3xl shadow-sm flex items-center justify-between transition-all duration-200">
                         <div>
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Restaurantes</p>
-                            <h4 className="text-3xl font-black mt-2 text-white">{restaurants.length}</h4>
+                            <p className="text-xs font-bold text-gray-500 dark:text-gray-450 uppercase tracking-wider">Restaurantes</p>
+                            <h4 className="text-3xl font-black mt-2 text-gray-900 dark:text-white">{restaurants.length}</h4>
                             <span className="text-[10px] text-orange-400 font-semibold mt-1 block">Locales en el sistema</span>
                         </div>
                         <div className="w-12 h-12 rounded-2xl bg-orange-600/10 text-orange-400 flex items-center justify-center">
@@ -356,10 +356,10 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                         </div>
                     </div>
 
-                    <div className="p-6 bg-gray-900 border border-gray-850 rounded-3xl shadow-sm flex items-center justify-between">
+                    <div className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-850 rounded-3xl shadow-sm flex items-center justify-between transition-all duration-200">
                         <div>
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Usuarios Totales</p>
-                            <h4 className="text-3xl font-black mt-2 text-white">{totalUsers}</h4>
+                            <p className="text-xs font-bold text-gray-500 dark:text-gray-450 uppercase tracking-wider">Usuarios Totales</p>
+                            <h4 className="text-3xl font-black mt-2 text-gray-900 dark:text-white">{totalUsers}</h4>
                             <span className="text-[10px] text-amber-500 font-semibold mt-1 block">Admins & meseros</span>
                         </div>
                         <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
@@ -367,10 +367,10 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                         </div>
                     </div>
 
-                    <div className="p-6 bg-gray-900 border border-gray-850 rounded-3xl shadow-sm flex items-center justify-between">
+                    <div className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-850 rounded-3xl shadow-sm flex items-center justify-between transition-all duration-200">
                         <div>
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Platos / Menús</p>
-                            <h4 className="text-3xl font-black mt-2 text-white">{totalProducts}</h4>
+                            <p className="text-xs font-bold text-gray-500 dark:text-gray-450 uppercase tracking-wider">Platos / Menús</p>
+                            <h4 className="text-3xl font-black mt-2 text-gray-900 dark:text-white">{totalProducts}</h4>
                             <span className="text-[10px] text-green-400 font-semibold mt-1 block">Carta consolidada</span>
                         </div>
                         <div className="w-12 h-12 rounded-2xl bg-green-500/10 text-green-400 flex items-center justify-center">
@@ -378,10 +378,10 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                         </div>
                     </div>
 
-                    <div className="p-6 bg-gray-900 border border-gray-850 rounded-3xl shadow-sm flex items-center justify-between">
+                    <div className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-850 rounded-3xl shadow-sm flex items-center justify-between transition-all duration-200">
                         <div>
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Mesas QRs</p>
-                            <h4 className="text-3xl font-black mt-2 text-white">{totalTables}</h4>
+                            <p className="text-xs font-bold text-gray-500 dark:text-gray-450 uppercase tracking-wider">Mesas QRs</p>
+                            <h4 className="text-3xl font-black mt-2 text-gray-900 dark:text-white">{totalTables}</h4>
                             <span className="text-[10px] text-blue-400 font-semibold mt-1 block">Códigos QR generados</span>
                         </div>
                         <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
@@ -393,9 +393,9 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                 {/* Dashboard Charts for Super Admin */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* User Roles Chart */}
-                    <div className="p-6 bg-gray-900 border border-gray-850 rounded-3xl shadow-md flex flex-col justify-between">
+                    <div className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-850 rounded-3xl shadow-md flex flex-col justify-between transition-all duration-200">
                         <div>
-                            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                 <PieIcon className="w-4 h-4 text-orange-500" />
                                 Distribución de Usuarios
                             </h3>
@@ -432,7 +432,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                     {userRolesData.map((entry, index) => (
                                         <div key={index} className="flex items-center gap-2">
                                             <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} />
-                                            <span className="font-semibold text-gray-300 truncate">{entry.name}</span>
+                                            <span className="font-semibold text-gray-700 dark:text-gray-350 truncate">{entry.name}</span>
                                             <span className="text-gray-500">{entry.value}</span>
                                         </div>
                                     ))}
@@ -442,9 +442,9 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                     </div>
 
                     {/* Restaurant Size comparison chart */}
-                    <div className="p-6 bg-gray-900 border border-gray-850 rounded-3xl shadow-md flex flex-col justify-between">
+                    <div className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-850 rounded-3xl shadow-md flex flex-col justify-between transition-all duration-200">
                         <div>
-                            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                 <Utensils className="w-4 h-4 text-blue-500" />
                                 Tamaño de Negocios
                             </h3>
@@ -475,9 +475,9 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                     </div>
 
                     {/* SaaS Sales Ranking Chart */}
-                    <div className="p-6 bg-gray-900 border border-gray-850 rounded-3xl shadow-md flex flex-col justify-between">
+                    <div className="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-850 rounded-3xl shadow-md flex flex-col justify-between transition-all duration-200">
                         <div>
-                            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                 <DollarSign className="w-4 h-4 text-green-500" />
                                 Top Ventas del SaaS
                             </h3>
@@ -509,17 +509,17 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
 
                 {/* Content Area with Filters & Actions */}
                 {activeTab === 'restaurants' ? (
-                    <div className="bg-gray-900 border border-gray-850 rounded-3xl overflow-hidden shadow-2xl space-y-4">
-                        <div className="p-6 border-b border-gray-850 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-850 rounded-3xl overflow-hidden shadow-md space-y-4 transition-all duration-200">
+                        <div className="p-6 border-b border-gray-200 dark:border-gray-850 flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
                                 <Building2 className="w-5 h-5 text-orange-500" />
-                                <h3 className="text-md font-bold text-white">Negocios Vinculados</h3>
+                                <h3 className="text-md font-bold text-gray-900 dark:text-white">Negocios Vinculados</h3>
                             </div>
                             
                             {/* Filters row */}
                             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                                 {/* Sorting selector */}
-                                <div className="flex bg-gray-950 rounded-xl border border-gray-800 p-1 items-center">
+                                <div className="flex bg-gray-100 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 p-1 items-center">
                                     <button 
                                         onClick={() => setSortBy('sales')}
                                         className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 ${
@@ -544,7 +544,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                     </button>
                                 </div>
 
-                                <div className="flex gap-1.5 bg-gray-950 p-1 rounded-xl border border-gray-800">
+                                <div className="flex gap-1.5 bg-gray-100 dark:bg-gray-950 p-1 rounded-xl border border-gray-200 dark:border-gray-800">
                                     <button 
                                         onClick={() => setRestaurantStatusFilter('All')}
                                         className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${
@@ -584,7 +584,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                         placeholder="Buscar por nombre o dirección..."
                                         value={restaurantSearch}
                                         onChange={(e) => setRestaurantSearch(e.target.value)}
-                                        className="w-full pl-9 pr-4 py-2 text-xs bg-gray-950 border border-gray-850 text-white rounded-xl focus:ring-1 focus:ring-orange-550 focus:border-orange-550 outline-none transition-all placeholder:text-gray-600"
+                                        className="w-full pl-9 pr-4 py-2 text-xs bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-850 text-gray-900 dark:text-white rounded-xl focus:ring-1 focus:ring-orange-550 focus:border-orange-550 outline-none transition-all placeholder:text-gray-600"
                                     />
                                 </div>
                             </div>
@@ -593,7 +593,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="border-b border-gray-800 bg-gray-950/50 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                    <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/50 text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                                         <th className="px-6 py-4">Nombre del Negocio</th>
                                         <th className="px-6 py-4 text-center">Ventas Cobradas</th>
                                         <th className="px-6 py-4 text-center">Platillos</th>
@@ -604,7 +604,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                         <th className="px-6 py-4 text-right">Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-800 text-sm text-gray-300">
+                                <tbody className="divide-y divide-gray-200 dark:divide-gray-800 text-sm text-gray-750 dark:text-gray-300">
                                     {paginatedRestaurants.length === 0 ? (
                                         <tr>
                                             <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
@@ -613,9 +613,9 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                         </tr>
                                     ) : (
                                         paginatedRestaurants.map((restaurant) => (
-                                            <tr key={restaurant.id} className="hover:bg-gray-850/30 transition-all">
+                                            <tr key={restaurant.id} className="hover:bg-gray-50 dark:hover:bg-gray-850/30 transition-all">
                                                 <td className="px-6 py-4">
-                                                    <div className="font-bold text-white flex items-center gap-2">
+                                                    <div className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                                         {restaurant.name}
                                                         {!restaurant.is_active && (
                                                             <span className="px-2 py-0.5 rounded-full text-[9px] bg-red-500/10 text-red-400 font-black border border-red-500/20">
@@ -694,7 +694,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
 
                         {/* Restaurant Pagination */}
                         {totalRestaurantPages > 1 && (
-                            <div className="flex items-center justify-between border-t border-gray-850 p-6">
+                            <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-850 p-6">
                                 <p className="text-xs text-gray-500">
                                     Mostrando <span className="font-semibold">{paginatedRestaurants.length}</span> de <span className="font-semibold">{filteredRestaurants.length}</span> locales
                                 </p>
@@ -702,7 +702,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                     <button
                                         onClick={() => setRestaurantPage(prev => Math.max(prev - 1, 1))}
                                         disabled={restaurantPage === 1}
-                                        className="p-1.5 rounded-lg bg-gray-950 border border-gray-850 hover:bg-gray-850 disabled:opacity-50 text-gray-400"
+                                        className="p-1.5 rounded-lg bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-850 hover:bg-gray-100 dark:hover:bg-gray-850 disabled:opacity-50 text-gray-500 dark:text-gray-400"
                                     >
                                         <ChevronLeft className="w-4 h-4" />
                                     </button>
@@ -712,7 +712,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                     <button
                                         onClick={() => setRestaurantPage(prev => Math.min(prev + 1, totalRestaurantPages))}
                                         disabled={restaurantPage === totalRestaurantPages}
-                                        className="p-1.5 rounded-lg bg-gray-950 border border-gray-850 hover:bg-gray-850 disabled:opacity-50 text-gray-400"
+                                        className="p-1.5 rounded-lg bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-850 hover:bg-gray-100 dark:hover:bg-gray-850 disabled:opacity-50 text-gray-500 dark:text-gray-400"
                                     >
                                         <ChevronRight className="w-4 h-4" />
                                     </button>
@@ -721,11 +721,11 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                         )}
                     </div>
                 ) : (
-                    <div className="bg-gray-900 border border-gray-800 rounded-3xl overflow-hidden shadow-2xl space-y-4">
-                        <div className="p-6 border-b border-gray-850 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl overflow-hidden shadow-md space-y-4 transition-all duration-200">
+                        <div className="p-6 border-b border-gray-200 dark:border-gray-850 flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
                                 <Users className="w-5 h-5 text-orange-500" />
-                                <h3 className="text-md font-bold text-white">Gestión de Cuentas de Usuarios</h3>
+                                <h3 className="text-md font-bold text-gray-900 dark:text-white">Gestión de Cuentas de Usuarios</h3>
                             </div>
                             
                             {/* User Filters Row */}
@@ -734,7 +734,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                 <select 
                                     value={userRoleFilter} 
                                     onChange={(e) => setUserRoleFilter(e.target.value as any)}
-                                    className="px-3 py-1.5 text-xs bg-gray-950 border border-gray-800 text-gray-450 rounded-xl focus:ring-orange-500 focus:outline-none"
+                                    className="px-3 py-1.5 text-xs bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 text-gray-750 dark:text-gray-400 rounded-xl focus:ring-orange-500 focus:outline-none"
                                 >
                                     <option value="All">Todos los Roles</option>
                                     <option value="admin">Administradores</option>
@@ -742,7 +742,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                 </select>
 
                                 {/* Active status filter */}
-                                <div className="flex gap-1.5 bg-gray-950 p-1 rounded-xl border border-gray-800">
+                                <div className="flex gap-1.5 bg-gray-100 dark:bg-gray-950 p-1 rounded-xl border border-gray-200 dark:border-gray-800">
                                     <button 
                                         onClick={() => setUserStatusFilter('All')}
                                         className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${
@@ -782,7 +782,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                         placeholder="Buscar usuario o restaurante..."
                                         value={userSearch}
                                         onChange={(e) => setUserSearch(e.target.value)}
-                                        className="w-full pl-9 pr-4 py-2 text-xs bg-gray-950 border border-gray-800 text-white rounded-xl focus:ring-1 focus:ring-orange-550 focus:border-orange-550 outline-none transition-all placeholder:text-gray-600"
+                                        className="w-full pl-9 pr-4 py-2 text-xs bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white rounded-xl focus:ring-1 focus:ring-orange-550 focus:border-orange-550 outline-none transition-all placeholder:text-gray-600"
                                     />
                                 </div>
                             </div>
@@ -791,7 +791,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="border-b border-gray-800 bg-gray-950/50 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                    <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/50 text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                                         <th className="px-6 py-4">Usuario</th>
                                         <th className="px-6 py-4">Negocio / Restaurante</th>
                                         <th className="px-6 py-4">Rol / Permisos</th>
@@ -800,7 +800,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                         <th className="px-6 py-4 text-right">Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-800 text-sm text-gray-300">
+                                <tbody className="divide-y divide-gray-200 dark:divide-gray-800 text-sm text-gray-750 dark:text-gray-300">
                                     {paginatedUsers.length === 0 ? (
                                         <tr>
                                             <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
@@ -809,9 +809,9 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                         </tr>
                                     ) : (
                                         paginatedUsers.map((user) => (
-                                            <tr key={user.id} className="hover:bg-gray-850/30 transition-all">
+                                            <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-850/30 transition-all">
                                                 <td className="px-6 py-4">
-                                                    <div className="font-bold text-white flex items-center gap-2">
+                                                    <div className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                                         {user.name}
                                                         {!user.is_active && (
                                                             <span className="px-2 py-0.5 rounded-full text-[9px] bg-red-500/10 text-red-400 font-black border border-red-500/20">
@@ -822,7 +822,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                                     <div className="text-xs text-gray-500 mt-0.5">{user.email}</div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="text-white font-semibold">
+                                                    <div className="text-gray-900 dark:text-white font-semibold">
                                                         {user.restaurant ? user.restaurant.name : (
                                                             <span className="text-gray-500 text-xs italic">Plataforma Global</span>
                                                         )}
@@ -889,7 +889,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
 
                         {/* Users Pagination */}
                         {totalUserPages > 1 && (
-                            <div className="flex items-center justify-between border-t border-gray-800 p-6">
+                            <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 p-6">
                                 <p className="text-xs text-gray-500">
                                     Mostrando <span className="font-semibold">{paginatedUsers.length}</span> de <span className="font-semibold">{filteredUsers.length}</span> usuarios
                                 </p>
@@ -907,7 +907,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                     <button
                                         onClick={() => setUserPage(prev => Math.min(prev + 1, totalUserPages))}
                                         disabled={userPage === totalUserPages}
-                                        className="p-1.5 rounded-lg bg-gray-950 border border-gray-800 hover:bg-gray-850 disabled:opacity-50 text-gray-400"
+                                        className="p-1.5 rounded-lg bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-850 disabled:opacity-50 text-gray-500 dark:text-gray-400"
                                     >
                                         <ChevronRight className="w-4 h-4" />
                                     </button>
@@ -921,8 +921,8 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
             {/* Viewing Restaurant Detail Modal */}
             {viewingRestaurant && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-gray-900 border border-gray-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 text-gray-200">
-                        <div className="flex justify-between items-center border-b border-gray-800 pb-3">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 text-gray-800 dark:text-gray-200">
+                        <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 pb-3">
                             <h3 className="text-lg font-bold flex items-center gap-2 text-white">
                                 <Building2 className="w-5 h-5 text-orange-500" />
                                 Ficha de Negocio
@@ -934,12 +934,12 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
 
                         <div className="space-y-4 text-sm">
                             <div className="flex justify-between items-center">
-                                <span className="text-gray-450 font-medium">Nombre comercial</span>
-                                <span className="font-bold text-white text-base">{viewingRestaurant.name}</span>
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">Nombre comercial</span>
+                                <span className="font-bold text-gray-900 dark:text-gray-900 dark:text-white text-base">{viewingRestaurant.name}</span>
                             </div>
 
                             <div className="flex justify-between items-center">
-                                <span className="text-gray-450 font-medium">Estado del Local</span>
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">Estado del Local</span>
                                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
                                     viewingRestaurant.is_active 
                                         ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
@@ -949,7 +949,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                 </span>
                             </div>
 
-                            <div className="flex items-center gap-3 p-3 bg-gray-950 rounded-2xl border border-gray-850">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-2xl border border-gray-200 dark:border-gray-850">
                                 <MapPin className="w-4 h-4 text-gray-500" />
                                 <div>
                                     <span className="text-[10px] text-gray-500 block font-bold uppercase">Dirección física</span>
@@ -958,7 +958,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                             </div>
 
                             {viewingRestaurant.phone && (
-                                <div className="flex items-center gap-3 p-3 bg-gray-950 rounded-2xl border border-gray-850">
+                                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-2xl border border-gray-200 dark:border-gray-850">
                                     <Phone className="w-4 h-4 text-gray-500" />
                                     <div>
                                         <span className="text-[10px] text-gray-500 block font-bold uppercase">Teléfono de contacto</span>
@@ -968,7 +968,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                             )}
 
                             {/* SaaS Sales metric in modal */}
-                            <div className="flex items-center gap-3 p-3 bg-gray-950 rounded-2xl border border-gray-800">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-2xl border border-gray-200 dark:border-gray-800">
                                 <DollarSign className="w-4 h-4 text-green-500" />
                                 <div>
                                     <span className="text-[10px] text-gray-500 block font-bold uppercase">Facturación SaaS</span>
@@ -982,21 +982,21 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                             </div>
 
                             <div className="grid grid-cols-3 gap-3 pt-2">
-                                <div className="p-3 bg-gray-950 rounded-xl border border-gray-850 text-center">
+                                <div className="p-3 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-850 text-center">
                                     <span className="text-[10px] text-gray-500 block">Platillos</span>
                                     <span className="text-base font-extrabold text-orange-400">{viewingRestaurant.products_count}</span>
                                 </div>
-                                <div className="p-3 bg-gray-950 rounded-xl border border-gray-850 text-center">
+                                <div className="p-3 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-850 text-center">
                                     <span className="text-[10px] text-gray-500 block">Mesas QR</span>
                                     <span className="text-base font-extrabold text-blue-400">{viewingRestaurant.tables_count}</span>
                                 </div>
-                                <div className="p-3 bg-gray-950 rounded-xl border border-gray-850 text-center">
+                                <div className="p-3 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-850 text-center">
                                     <span className="text-[10px] text-gray-500 block">Meseros</span>
                                     <span className="text-base font-extrabold text-gray-300">{viewingRestaurant.waiters_count}</span>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 p-3 bg-gray-950 rounded-2xl border border-gray-850">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-2xl border border-gray-200 dark:border-gray-850">
                                 <Calendar className="w-4 h-4 text-gray-500" />
                                 <div>
                                     <span className="text-[10px] text-gray-500 block font-bold uppercase">Fecha de Incorporación</span>
@@ -1026,8 +1026,8 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
             {/* Viewing User Detail Modal */}
             {viewingUser && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-gray-900 border border-gray-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-5 text-gray-200">
-                        <div className="flex justify-between items-center border-b border-gray-800 pb-3">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-5 text-gray-800 dark:text-gray-200">
+                        <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 pb-3">
                             <h3 className="text-lg font-bold flex items-center gap-2 text-white">
                                 <UserCheck className="w-5 h-5 text-orange-500" />
                                 Perfil de Usuario
@@ -1042,7 +1042,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                 <div className="w-16 h-16 rounded-full bg-orange-600/10 text-orange-400 font-black text-2xl flex items-center justify-center shadow-inner mb-2 border border-orange-500/15">
                                     {viewingUser.name.substring(0, 2).toUpperCase()}
                                 </div>
-                                <h4 className="font-bold text-white text-base">{viewingUser.name}</h4>
+                                <h4 className="font-bold text-gray-900 dark:text-gray-900 dark:text-white text-base">{viewingUser.name}</h4>
                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold mt-1 ${
                                     viewingUser.is_active 
                                         ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
@@ -1052,7 +1052,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                 </span>
                             </div>
 
-                            <div className="flex items-center gap-3 p-3 bg-gray-950 rounded-2xl border border-gray-850">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-2xl border border-gray-200 dark:border-gray-850">
                                 <Mail className="w-4 h-4 text-gray-500" />
                                 <div>
                                     <span className="text-[10px] text-gray-500 block font-bold uppercase">Correo Electrónico</span>
@@ -1060,7 +1060,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 p-3 bg-gray-950 rounded-2xl border border-gray-800">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-2xl border border-gray-200 dark:border-gray-800">
                                 <Building2 className="w-4 h-4 text-gray-500" />
                                 <div>
                                     <span className="text-[10px] text-gray-500 block font-bold uppercase">Negocio Vinculado</span>
@@ -1070,7 +1070,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 p-3 bg-gray-950 rounded-2xl border border-gray-800">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-2xl border border-gray-200 dark:border-gray-800">
                                 <Calendar className="w-4 h-4 text-gray-500" />
                                 <div>
                                     <span className="text-[10px] text-gray-500 block font-bold uppercase">Registrado el</span>
