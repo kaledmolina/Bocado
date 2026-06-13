@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: bocado_web
     ports:
-      - "8000:80"
+      - "3010:80"
     environment:
       - APP_NAME="bocado!"
       - APP_ENV=production
