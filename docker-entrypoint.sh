@@ -34,6 +34,10 @@ chown -R www-data:www-data /var/www/html/database
 echo "Running database migrations..."
 php artisan migrate --force
 
+# Create public storage symlink
+echo "Creating storage symlink..."
+php artisan storage:link --force || true
+
 # Start Apache in the foreground
 echo "Starting Apache..."
 exec apache2-foreground
