@@ -178,4 +178,38 @@ Route::middleware('auth')->group(function () {
     Route::post('/waiter/profile/settings', [WaiterPlatformController::class, 'updateProfileSettings'])->name('waiter.profile.settings');
 });
 
+// Demo Auto-Login Routes
+Route::get('/demo-login/client', function () {
+    $rinconcito = \App\Models\Restaurant::where('name', 'El Rinconcito Italiano')->first();
+    if ($rinconcito) {
+        $table = $rinconcito->tables()->where('number', 'Mesa 1')->first();
+        if ($table && $table->qr_code_token) {
+            return redirect()->route('qr.scan', ['qr_code_token' => $table->qr_code_token]);
+        }
+    }
+    $table = \App\Models\Table::first();
+    if ($table && $table->qr_code_token) {
+        return redirect()->route('qr.scan', ['qr_code_token' => $table->qr_code_token]);
+    }
+    return redirect()->route('login')->with('error', 'Mesa demo no encontrada.');
+})->name('demo.client');
+
+Route::get('/demo-login/{role}', function ($role) {
+    $email = match($role) {
+        'superadmin' => 'kaledmoly@gmail.com',
+        'owner', 'admin' => 'owner@rinconcito.com',
+        'waiter', 'mesero' => 'pedro@rinconcito.com',
+        default => null
+    };
+    
+    if ($email) {
+        $user = \App\Models\User::where('email', $email)->first();
+        if ($user) {
+            \Illuminate\Support\Facades\Auth::login($user);
+            return redirect()->route('dashboard');
+        }
+    }
+    return redirect()->route('login')->with('error', 'Usuario demo no encontrado.');
+})->name('demo.login');
+
 require __DIR__.'/auth.php';

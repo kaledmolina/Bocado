@@ -59,13 +59,21 @@ export default function SimulatorHub() {
                             </ul>
                         </div>
                         
-                        <Link
-                            href="/simulator/owner"
-                            className="w-full mt-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-2xl text-xs transition-all shadow-md shadow-orange-500/10 flex items-center justify-center gap-1.5 group-hover:shadow-lg active:scale-[0.98]"
-                        >
-                            <span>Simular Dueño</span>
-                            <ArrowRight className="w-4 h-4" />
-                        </Link>
+                        <div className="mt-8 space-y-2.5">
+                            <a
+                                href="/demo-login/owner"
+                                className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-2xl text-xs transition-all shadow-md shadow-orange-500/10 flex items-center justify-center gap-1.5 group-hover:shadow-lg active:scale-[0.98] cursor-pointer"
+                            >
+                                <span>Ingresar al Sistema Real ⚡</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </a>
+                            <Link
+                                href="/simulator/owner"
+                                className="w-full py-2.5 bg-slate-150/70 hover:bg-slate-200 dark:bg-slate-800/50 dark:hover:bg-slate-750 text-slate-700 dark:text-gray-250 font-bold rounded-2xl text-[11px] transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]"
+                            >
+                                <span>Probar Simulador Interactivo</span>
+                            </Link>
+                        </div>
                     </div>
 
                     {/* 2. Waiter Workflow Card */}
@@ -99,13 +107,21 @@ export default function SimulatorHub() {
                             </ul>
                         </div>
                         
-                        <Link
-                            href="/simulator/waiter"
-                            className="w-full mt-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-2xl text-xs transition-all shadow-md shadow-orange-500/10 flex items-center justify-center gap-1.5 group-hover:shadow-lg active:scale-[0.98]"
-                        >
-                            <span>Simular Mesero</span>
-                            <ArrowRight className="w-4 h-4" />
-                        </Link>
+                        <div className="mt-8 space-y-2.5">
+                            <a
+                                href="/demo-login/waiter"
+                                className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-2xl text-xs transition-all shadow-md shadow-orange-500/10 flex items-center justify-center gap-1.5 group-hover:shadow-lg active:scale-[0.98] cursor-pointer"
+                            >
+                                <span>Ingresar al Sistema Real ⚡</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </a>
+                            <Link
+                                href="/simulator/waiter"
+                                className="w-full py-2.5 bg-slate-150/70 hover:bg-slate-200 dark:bg-slate-800/50 dark:hover:bg-slate-750 text-slate-700 dark:text-gray-250 font-bold rounded-2xl text-[11px] transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]"
+                            >
+                                <span>Probar Simulador Interactivo</span>
+                            </Link>
+                        </div>
                     </div>
 
                     {/* 3. Client Workflow Card */}
@@ -139,13 +155,21 @@ export default function SimulatorHub() {
                             </ul>
                         </div>
                         
-                        <Link
-                            href="/simulator/client"
-                            className="w-full mt-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-2xl text-xs transition-all shadow-md shadow-orange-500/10 flex items-center justify-center gap-1.5 group-hover:shadow-lg active:scale-[0.98]"
-                        >
-                            <span>Simular Cliente</span>
-                            <ArrowRight className="w-4 h-4" />
-                        </Link>
+                        <div className="mt-8 space-y-2.5">
+                            <a
+                                href="/demo-login/client"
+                                className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-2xl text-xs transition-all shadow-md shadow-orange-500/10 flex items-center justify-center gap-1.5 group-hover:shadow-lg active:scale-[0.98] cursor-pointer"
+                            >
+                                <span>Escanear QR de Mesa Real ⚡</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </a>
+                            <Link
+                                href="/simulator/client"
+                                className="w-full py-2.5 bg-slate-150/70 hover:bg-slate-200 dark:bg-slate-800/50 dark:hover:bg-slate-750 text-slate-700 dark:text-gray-250 font-bold rounded-2xl text-[11px] transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]"
+                            >
+                                <span>Probar Simulador Interactivo</span>
+                            </Link>
+                        </div>
                     </div>
 
                 </div>

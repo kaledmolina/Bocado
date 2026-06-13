@@ -130,6 +130,35 @@ export default function Login({
                     </p>
                 </div>
             </form>
+
+            {/* Quick Demo Access */}
+            <div className="mt-6 p-4 bg-orange-50/50 dark:bg-orange-950/10 border border-orange-200/40 rounded-2xl animate-fade-in">
+                <h3 className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-2.5 text-center">
+                    ⚡ Acceso Rápido Demo (Sin Registro)
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                    <a
+                        href="/demo-login/owner"
+                        className="py-2.5 px-3 bg-white dark:bg-gray-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-gray-750 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400 text-[11px] font-bold rounded-xl transition-all border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm text-center"
+                    >
+                        💼 Propietario Demo
+                    </a>
+                    <a
+                        href="/demo-login/waiter"
+                        className="py-2.5 px-3 bg-white dark:bg-gray-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-gray-750 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400 text-[11px] font-bold rounded-xl transition-all border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm text-center"
+                    >
+                        🧑‍🍳 Mesero Demo
+                    </a>
+                </div>
+                <div className="mt-2">
+                    <a
+                        href="/demo-login/superadmin"
+                        className="w-full py-2 px-3 bg-white dark:bg-gray-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-gray-750 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400 text-[11px] font-bold rounded-xl transition-all border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm text-center"
+                    >
+                        👑 Super Admin Demo
+                    </a>
+                </div>
+            </div>
         </GuestLayout>
     );
 }
