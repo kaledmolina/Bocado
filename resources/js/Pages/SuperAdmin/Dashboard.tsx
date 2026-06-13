@@ -93,6 +93,16 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
         return 'light';
     });
 
+    const [scrolled, setScrolled] = useState(false);
+
+    React.useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20);
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     const [confirmModal, setConfirmModal] = useState<{
         isOpen: boolean;
         title: string;
@@ -271,44 +281,50 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
             <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-orange-600/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
 
-            {/* Header */}
-            <header className="sticky top-0 z-35 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-850 px-6 py-4 flex items-center justify-between shadow-md">
-                <div>
-                    <h1 className="text-xl font-black bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent tracking-tight">
-                        bocado! administración
-                    </h1>
-                    <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">
-                        Super Administrador Global
-                    </p>
-                </div>
+            {/* Floating Capsule Header */}
+            <div className="fixed top-4 left-1/2 -translate-x-1/2 z-40 px-4 sm:px-6 w-full max-w-7xl mx-auto transition-transform duration-300">
+                <header className={`backdrop-blur-xl border rounded-3xl px-6 flex items-center justify-between transition-all duration-300 hover:shadow-orange-500/5 hover:border-orange-500/20 ${
+                    scrolled 
+                        ? 'py-2 bg-white/85 dark:bg-gray-900/85 border-orange-500/20 dark:border-orange-500/30 scale-[0.98] shadow-xl shadow-orange-500/5' 
+                        : 'py-3.5 bg-white/70 dark:bg-gray-900/70 border-gray-200 dark:border-gray-850 shadow-lg'
+                }`}>
+                    <div>
+                        <h1 className="text-xl font-black bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent tracking-tight">
+                            bocado! administración
+                        </h1>
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">
+                            Super Administrador Global
+                        </p>
+                    </div>
 
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={toggleTheme}
-                        type="button"
-                        className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-xl transition-all"
-                        title="Cambiar tema"
-                    >
-                        {theme === 'dark' ? (
-                            <Sun className="w-4 h-4 text-amber-500" />
-                        ) : (
-                            <Moon className="w-4 h-4 text-indigo-500" />
-                        )}
-                    </button>
-                    <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold">{auth.user.email}</span>
-                    <Link
-                        method="post"
-                        href={route('logout')}
-                        as="button"
-                        className="flex items-center gap-1.5 px-3.5 py-1.5 bg-gray-100 hover:bg-red-50 hover:text-red-650 dark:bg-gray-800 dark:hover:bg-red-950/40 dark:hover:text-red-400 text-xs font-semibold rounded-xl text-gray-700 dark:text-gray-300 transition-all border border-gray-200 dark:border-gray-700"
-                    >
-                        <LogOut className="w-3.5 h-3.5" />
-                        Cerrar Sesión
-                    </Link>
-                </div>
-            </header>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={toggleTheme}
+                            type="button"
+                            className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-xl transition-all"
+                            title="Cambiar tema"
+                        >
+                            {theme === 'dark' ? (
+                                <Sun className="w-4 h-4 text-amber-500" />
+                            ) : (
+                                <Moon className="w-4 h-4 text-indigo-500" />
+                            )}
+                        </button>
+                        <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold">{auth.user.email}</span>
+                        <Link
+                            method="post"
+                            href={route('logout')}
+                            as="button"
+                            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-gray-100 hover:bg-red-50 hover:text-red-650 dark:bg-gray-800 dark:hover:bg-red-950/40 dark:hover:text-red-400 text-xs font-semibold rounded-xl text-gray-700 dark:text-gray-300 transition-all border border-gray-200 dark:border-gray-700"
+                        >
+                            <LogOut className="w-3.5 h-3.5" />
+                            Cerrar Sesión
+                        </Link>
+                    </div>
+                </header>
+            </div>
 
-            <main className="max-w-7xl mx-auto px-6 py-10 space-y-10 relative z-10">
+            <main className="max-w-7xl mx-auto px-6 pt-24 pb-10 space-y-10 relative z-10">
                 {/* Intro */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
