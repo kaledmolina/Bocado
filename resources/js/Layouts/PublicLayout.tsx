@@ -63,12 +63,12 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-600/10 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
 
-            {/* Navigation Header - Always Floating Glassmorphic Pill */}
-            <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 sm:px-6 w-full max-w-7xl mx-auto transition-transform duration-300">
-                <header className={`backdrop-blur-xl border rounded-3xl px-6 flex items-center justify-between transition-all duration-300 hover:shadow-orange-500/5 hover:border-orange-500/20 ${
+            {/* Navigation Header - Full-width Sticky Header */}
+            <div className="sticky top-0 z-50 w-full transition-all duration-300">
+                <header className={`backdrop-blur-xl border-b flex items-center justify-between px-6 transition-all duration-300 ${
                     scrolled 
-                        ? 'py-2 bg-white/85 dark:bg-slate-950/85 border-orange-500/20 dark:border-orange-500/30 scale-[0.98] shadow-xl shadow-orange-500/5' 
-                        : 'py-3.5 bg-white/70 dark:bg-slate-950/70 border-white/40 dark:border-slate-800/40 shadow-lg shadow-slate-100/10 dark:shadow-black/25'
+                        ? 'py-3 bg-white/95 dark:bg-slate-950/95 border-orange-500/20 dark:border-orange-500/30 shadow-md shadow-orange-500/5' 
+                        : 'py-4.5 bg-white/90 dark:bg-slate-950/90 border-slate-200/80 dark:border-slate-800/80 shadow-sm'
                 }`}>
                     <div className="flex items-center gap-8">
                         <Link href="/" className="flex items-center gap-2 select-none group">
@@ -266,7 +266,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             </div>
 
             {/* Content Slot */}
-            <main className="relative z-10 pt-24">
+            <main className="relative z-10 pt-4">
                 {children}
             </main>
 
