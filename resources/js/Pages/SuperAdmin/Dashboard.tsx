@@ -27,7 +27,8 @@ import {
     ArrowUpDown,
     DollarSign,
     Sun,
-    Moon
+    Moon,
+    RotateCcw
 } from 'lucide-react';
 import { 
     ResponsiveContainer, 
@@ -163,6 +164,20 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                 setConfirmModal(prev => ({ ...prev, isOpen: false }));
             },
             isDanger: active,
+        });
+    };
+
+    const resetDemo = (id: number, name: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Restablecer Datos Demo',
+            message: `¿Estás seguro de que deseas restablecer los datos del restaurante demo "${name}"? Se borrarán todas las órdenes y turnos creados durante las pruebas y se reiniciarán las mesas.`,
+            confirmLabel: 'Restablecer',
+            onConfirm: () => {
+                router.post(route('superadmin.restaurants.reset-demo', id));
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            },
+            isDanger: true,
         });
     };
 
@@ -634,6 +649,11 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                                 <td className="px-6 py-4">
                                                     <div className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                                         {restaurant.name}
+                                                        {restaurant.is_demo && (
+                                                            <span className="px-2 py-0.5 rounded-full text-[9px] bg-purple-500/10 text-purple-450 font-black border border-purple-500/20">
+                                                                Demo
+                                                            </span>
+                                                        )}
                                                         {!restaurant.is_active && (
                                                             <span className="px-2 py-0.5 rounded-full text-[9px] bg-red-500/10 text-red-400 font-black border border-red-500/20">
                                                                 Suspendido
@@ -664,7 +684,7 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                                         restaurant.is_active 
                                                             ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
                                                             : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                                                    }`}>
+                                                     }`}>
                                                         {restaurant.is_active ? 'Activo' : 'Inactivo'}
                                                     </span>
                                                 </td>
@@ -673,6 +693,15 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex justify-end items-center gap-2">
+                                                        {restaurant.is_demo && (
+                                                            <button
+                                                                onClick={() => resetDemo(restaurant.id, restaurant.name)}
+                                                                className="p-2 text-purple-400 hover:bg-purple-950/20 rounded-xl transition-all"
+                                                                title="Restablecer Datos Demo"
+                                                            >
+                                                                <RotateCcw className="w-4 h-4" />
+                                                            </button>
+                                                        )}
                                                         <button
                                                             onClick={() => setViewingRestaurant(restaurant)}
                                                             className="p-2 text-gray-400 hover:bg-gray-800 rounded-xl transition-all"
