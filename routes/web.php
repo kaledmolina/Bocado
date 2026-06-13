@@ -154,9 +154,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/waiter/tables/{table}/order', [OrderController::class, 'saveOrder'])->name('waiter.order.save');
     Route::post('/waiter/tables/{table}/request-payment', [OrderController::class, 'requestPayment'])->name('waiter.order.request-payment');
 
-    // SuperAdmin toggles
+    // SuperAdmin toggles and actions
     Route::post('/superadmin/restaurants/{restaurant}/toggle', [DashboardController::class, 'toggleRestaurantStatus'])->name('superadmin.restaurants.toggle');
     Route::post('/superadmin/users/{user}/toggle', [DashboardController::class, 'toggleUserStatus'])->name('superadmin.users.toggle');
+    Route::post('/superadmin/restaurants/{restaurant}/reset-demo', [DashboardController::class, 'resetDemoRestaurant'])->name('superadmin.restaurants.reset-demo');
 
     // Waiter platform - Shifts
     Route::post('/waiter/shifts/start', [WaiterPlatformController::class, 'startShift'])->name('waiter.shifts.start');

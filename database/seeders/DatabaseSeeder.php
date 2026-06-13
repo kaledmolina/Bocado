@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             'address' => 'Av. Central 456, Zona G',
             'phone' => '+54 11 2233-4455',
             'security_table_pin' => true,
+            'is_demo' => true,
         ]);
 
         // Rinconcito Admin/Owner

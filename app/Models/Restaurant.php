@@ -9,10 +9,11 @@ class Restaurant extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'address', 'phone', 'is_active', 'is_hiring', 'waiters_can_collect_payment', 'security_waiter_activation', 'security_table_pin', 'security_require_physical_scan', 'client_can_call_waiter', 'primary_color', 'secondary_color', 'welcome_subtitle'];
+    protected $fillable = ['name', 'address', 'phone', 'is_active', 'is_demo', 'is_hiring', 'waiters_can_collect_payment', 'security_waiter_activation', 'security_table_pin', 'security_require_physical_scan', 'client_can_call_waiter', 'primary_color', 'secondary_color', 'welcome_subtitle'];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_demo' => 'boolean',
         'is_hiring' => 'boolean',
         'waiters_can_collect_payment' => 'boolean',
         'security_waiter_activation' => 'boolean',

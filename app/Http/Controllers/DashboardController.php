@@ -143,6 +143,116 @@ class DashboardController extends Controller
         return redirect()->back()->with('success', 'Estado del usuario actualizado.');
     }
 
+    public function resetDemoRestaurant(Restaurant $restaurant)
+    {
+        if (!$restaurant->is_demo) {
+            return redirect()->back()->with('error', 'El restaurante no es de demostración.');
+        }
+
+        // Delete orders
+        $orderIds = Order::where('restaurant_id', $restaurant->id)->pluck('id');
+        DB::table('order_items')->whereIn('order_id', $orderIds)->delete();
+        Order::where('restaurant_id', $restaurant->id)->delete();
+
+        // Delete shifts and cash sessions
+        DB::table('shifts')->where('restaurant_id', $restaurant->id)->delete();
+        DB::table('cash_sessions')->where('restaurant_id', $restaurant->id)->delete();
+        DB::table('restaurant_applications')->where('restaurant_id', $restaurant->id)->delete();
+        DB::table('waiter_ratings')->where('restaurant_id', $restaurant->id)->delete();
+
+        // Reset tables to default state
+        foreach ($restaurant->tables as $table) {
+            $table->update([
+                'status' => 'free',
+                'cart_data' => null,
+                'temp_pin' => null,
+                'pin_updated_at' => null,
+                'pin_requested' => false,
+                'is_active_for_order' => true,
+            ]);
+        }
+
+        // Recreate the seed orders for a beautiful initial experience:
+        $pedro = User::where('email', 'pedro@rinconcito.com')->first();
+        $maria = User::where('email', 'maria@rinconcito.com')->first();
+        $pizza = Product::where('restaurant_id', $restaurant->id)->where('name', 'Pizza Margarita')->first();
+        $coca = Product::where('restaurant_id', $restaurant->id)->where('name', 'Coca Cola')->first();
+        $lasagna = Product::where('restaurant_id', $restaurant->id)->where('name', 'Lasagna Boloñesa')->first();
+        $limon = Product::where('restaurant_id', $restaurant->id)->where('name', 'Limonada Natural')->first();
+
+        // Mesa 2 occupied
+        $t2 = Table::where('restaurant_id', $restaurant->id)->where('number', 'Mesa 2')->first();
+        if ($t2) {
+            $t2->update(['status' => 'occupied']);
+            if ($pedro && $pizza && $coca) {
+                $o2 = Order::create([
+                    'restaurant_id' => $restaurant->id,
+                    'table_id' => $t2->id,
+                    'waiter_id' => $pedro->id,
+                    'status' => 'pending',
+                    'total_amount' => 18.00,
+                ]);
+                DB::table('order_items')->insert([
+                    [
+                        'order_id' => $o2->id,
+                        'product_id' => $pizza->id,
+                        'quantity' => 1,
+                        'price' => 15.00,
+                        'notes' => 'Bien tostada',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'order_id' => $o2->id,
+                        'product_id' => $coca->id,
+                        'quantity' => 1,
+                        'price' => 3.00,
+                        'notes' => null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                ]);
+            }
+        }
+
+        // Mesa 3 payment_pending
+        $t3 = Table::where('restaurant_id', $restaurant->id)->where('number', 'Mesa 3')->first();
+        if ($t3) {
+            $t3->update(['status' => 'payment_pending']);
+            if ($maria && $lasagna && $limon) {
+                $o3 = Order::create([
+                    'restaurant_id' => $restaurant->id,
+                    'table_id' => $t3->id,
+                    'waiter_id' => $maria->id,
+                    'status' => 'pending',
+                    'total_amount' => 44.00,
+                ]);
+                DB::table('order_items')->insert([
+                    [
+                        'order_id' => $o3->id,
+                        'product_id' => $lasagna->id,
+                        'quantity' => 2,
+                        'price' => 18.50,
+                        'notes' => null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'order_id' => $o3->id,
+                        'product_id' => $limon->id,
+                        'quantity' => 2,
+                        'price' => 3.50,
+                        'notes' => 'Con poco hielo',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                ]);
+            }
+        }
+
+        return redirect()->back()->with('success', 'El estado del restaurante demo ha sido restablecido a su estado inicial.');
+    }
+
     public function showSettings()
     {
         $user = Auth::user();

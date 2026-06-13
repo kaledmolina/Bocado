@@ -51,6 +51,7 @@ interface RestaurantStat {
     tables_count: number;
     waiters_count: number;
     is_active: boolean;
+    is_demo: boolean;
     total_sales?: string | number | null;
     sales_count?: number;
     created_at: string;
