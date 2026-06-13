@@ -73,9 +73,10 @@ interface Props {
         [key: string]: Product[];
     };
     activeOrder: ActiveOrder | null;
+    isDemo?: boolean;
 }
 
-export default function Menu({ table, restaurant, categories, activeOrder }: Props) {
+export default function Menu({ table, restaurant, categories, activeOrder, isDemo }: Props) {
     const { errors } = usePage().props as any;
     const [theme, setTheme] = useState(() => {
         if (typeof window !== 'undefined') {
@@ -84,16 +85,20 @@ export default function Menu({ table, restaurant, categories, activeOrder }: Pro
         return 'light';
     });
 
-    const [isDemoMode, setIsDemoMode] = useState(false);
+    const [isDemoMode, setIsDemoMode] = useState(!!isDemo);
 
     useEffect(() => {
+        if (isDemo) {
+            setIsDemoMode(true);
+            return;
+        }
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
             if (params.get('demo') === 'true') {
                 setIsDemoMode(true);
             }
         }
-    }, []);
+    }, [isDemo]);
 
     useEffect(() => {
         const root = window.document.documentElement;

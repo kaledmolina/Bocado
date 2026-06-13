@@ -52,6 +52,7 @@ class OrderController extends Controller
             'restaurant' => $restaurant,
             'categories' => $products,
             'activeOrder' => $activeOrder,
+            'isDemo' => request('demo') === 'true' || session('is_demo_user', false),
         ]);
     }
 
