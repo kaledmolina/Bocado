@@ -188,12 +188,12 @@ Route::get('/demo-login/client', function () {
     if ($rinconcito) {
         $table = $rinconcito->tables()->where('number', 'Mesa 1')->first();
         if ($table && $table->qr_code_token) {
-            return redirect()->route('qr.scan', ['qr_code_token' => $table->qr_code_token]);
+            return redirect()->route('qr.scan', ['qr_code_token' => $table->qr_code_token, 'demo' => 'true']);
         }
     }
     $table = \App\Models\Table::first();
     if ($table && $table->qr_code_token) {
-        return redirect()->route('qr.scan', ['qr_code_token' => $table->qr_code_token]);
+        return redirect()->route('qr.scan', ['qr_code_token' => $table->qr_code_token, 'demo' => 'true']);
     }
     return redirect()->route('login')->with('error', 'Mesa demo no encontrada.');
 })->name('demo.client');
@@ -209,6 +209,7 @@ Route::get('/demo-login/{role}', function ($role) {
     if ($email) {
         $user = \App\Models\User::where('email', $email)->first();
         if ($user) {
+            session(['is_demo_user' => true]);
             \Illuminate\Support\Facades\Auth::login($user);
             return redirect()->route('dashboard');
         }

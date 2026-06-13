@@ -84,6 +84,17 @@ export default function Menu({ table, restaurant, categories, activeOrder }: Pro
         return 'light';
     });
 
+    const [isDemoMode, setIsDemoMode] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('demo') === 'true') {
+                setIsDemoMode(true);
+            }
+        }
+    }, []);
+
     useEffect(() => {
         const root = window.document.documentElement;
         if (theme === 'dark') {
@@ -930,6 +941,17 @@ export default function Menu({ table, restaurant, categories, activeOrder }: Pro
             <footer className="w-full text-center py-6 bg-white dark:bg-gray-900 border-t border-gray-150 dark:border-gray-800 text-[10px] text-gray-400 uppercase tracking-widest pb-24">
                 Desarrollado con 🧡 por bocado!
             </footer>
+
+            {isDemoMode && (
+                <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 animate-bounce">
+                    <a
+                        href="/demo-selector"
+                        className="flex items-center gap-1.5 px-5 py-3 bg-orange-600 hover:bg-orange-700 text-white text-xs font-black rounded-full shadow-2xl shadow-orange-500/20 border border-orange-500/35 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                        <span>⚡ Salir de Demo (Volver)</span>
+                    </a>
+                </div>
+            )}
         </div>
     );
 }
