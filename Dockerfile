@@ -1,10 +1,10 @@
 # Stage 1: Build frontend assets
-FROM node:20-alpine AS frontend-builder
+FROM node:20 AS frontend-builder
 WORKDIR /app
 
 # Copy package configurations and install dependencies
 COPY package*.json tsconfig.json vite.config.js tailwind.config.js postcss.config.js ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy resources and compile assets
 COPY resources ./resources
