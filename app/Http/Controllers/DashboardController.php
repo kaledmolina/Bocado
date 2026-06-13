@@ -154,14 +154,36 @@ class DashboardController extends Controller
         DB::table('order_items')->whereIn('order_id', $orderIds)->delete();
         Order::where('restaurant_id', $restaurant->id)->delete();
 
-        // Delete shifts and cash sessions
+        // Delete shifts, cash sessions, applications and ratings
         DB::table('shifts')->where('restaurant_id', $restaurant->id)->delete();
         DB::table('cash_sessions')->where('restaurant_id', $restaurant->id)->delete();
         DB::table('restaurant_applications')->where('restaurant_id', $restaurant->id)->delete();
         DB::table('waiter_ratings')->where('restaurant_id', $restaurant->id)->delete();
 
-        // Reset tables to default state
-        foreach ($restaurant->tables as $table) {
+        // Delete new users created during testing (keeping only Owner, Pedro and Maria)
+        User::where('restaurant_id', $restaurant->id)
+            ->whereNotIn('email', ['owner@rinconcito.com', 'pedro@rinconcito.com', 'maria@rinconcito.com'])
+            ->delete();
+
+        // Delete new products created during testing
+        Product::where('restaurant_id', $restaurant->id)
+            ->whereNotIn('name', [
+                'Pizza Margarita',
+                'Lasagna Boloñesa',
+                'Bruschetta de Tomate',
+                'Coca Cola',
+                'Limonada Natural',
+                'Tiramisú Clásico'
+            ])
+            ->delete();
+
+        // Delete new tables created during testing
+        Table::where('restaurant_id', $restaurant->id)
+            ->whereNotIn('number', ['Mesa 1', 'Mesa 2', 'Mesa 3', 'Mesa 4'])
+            ->delete();
+
+        // Reset the default tables to their original state
+        foreach ($restaurant->tables()->get() as $table) {
             $table->update([
                 'status' => 'free',
                 'cart_data' => null,
@@ -250,7 +272,7 @@ class DashboardController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'El estado del restaurante demo ha sido restablecido a su estado inicial.');
+        return redirect()->back()->with('success', 'El estado del restaurante demo ha sido restablecido a su estado inicial (meseros, productos y mesas por defecto).');
     }
 
     public function showSettings()
