@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { 
-    Briefcase, QrCode, BookOpen, Menu, X, ChevronRight, HelpCircle, UtensilsCrossed, Terminal 
+    Briefcase, QrCode, BookOpen, Menu, X, ChevronRight, HelpCircle, UtensilsCrossed, Terminal, Sun, Moon 
 } from 'lucide-react';
 
 interface User {
@@ -22,6 +22,28 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     
+    const [theme, setTheme] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('theme') || 'light';
+        }
+        return 'light';
+    });
+
+    useEffect(() => {
+        const root = window.document.documentElement;
+        if (theme === 'dark') {
+            root.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            root.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    };
+
     // Listen for scroll events to trigger subtle floating navbar animation
     useEffect(() => {
         const handleScroll = () => {
@@ -117,6 +139,20 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                     </div>
 
                     <div className="flex items-center gap-3">
+                        {/* Theme Toggle */}
+                        <button
+                            onClick={toggleTheme}
+                            type="button"
+                            className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-900 rounded-xl transition-all"
+                            title="Cambiar tema"
+                        >
+                            {theme === 'dark' ? (
+                                <Sun className="w-4 h-4 text-amber-500" />
+                            ) : (
+                                <Moon className="w-4 h-4 text-indigo-500" />
+                            )}
+                        </button>
+
                         {/* Desktop Auth Links */}
                         <div className="hidden sm:flex items-center gap-4">
                             {auth?.user ? (
@@ -188,6 +224,16 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                             <Terminal className="w-4.5 h-4.5 text-orange-500" />
                             API Docs
                         </Link>
+                        <button
+                            onClick={toggleTheme}
+                            type="button"
+                            className="flex items-center justify-between w-full py-2 px-3 bg-slate-50 dark:bg-slate-900 rounded-xl text-left border border-slate-200/50 dark:border-slate-800 text-slate-700 dark:text-slate-350"
+                        >
+                            <span className="flex items-center gap-3">
+                                {theme === 'dark' ? <Sun className="w-4.5 h-4.5 text-amber-500" /> : <Moon className="w-4.5 h-4.5 text-indigo-500" />}
+                                Modo {theme === 'dark' ? 'Claro' : 'Oscuro'}
+                            </span>
+                        </button>
                         <div className="pt-4 border-t border-slate-100 dark:border-gray-900 flex flex-col gap-3">
                             {auth?.user ? (
                                 <Link
