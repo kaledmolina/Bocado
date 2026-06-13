@@ -1,6 +1,7 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import React, { useState } from 'react';
 import ConfirmModal from '@/Components/ConfirmModal';
+import Toast from '@/Components/Toast';
 import { 
     Building2, 
     Users, 
@@ -88,6 +89,20 @@ const ITEMS_PER_PAGE = 5;
 const CHART_COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#eab308'];
 
 export default function Dashboard({ auth, restaurants, users, totalUsers, totalProducts, totalTables }: Props) {
+    const { flash } = usePage().props as any;
+    const [toast, setToast] = useState<{ message: string | null; type: 'success' | 'error' | 'info' }>({
+        message: null,
+        type: 'success',
+    });
+
+    React.useEffect(() => {
+        if (flash?.success) {
+            setToast({ message: flash.success, type: 'success' });
+        } else if (flash?.error) {
+            setToast({ message: flash.error, type: 'error' });
+        }
+    }, [flash]);
+
     const [theme, setTheme] = useState(() => {
         if (typeof window !== 'undefined') {
             return localStorage.getItem('theme') || 'light';
@@ -1150,6 +1165,11 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                 isDanger={confirmModal.isDanger}
                 onConfirm={confirmModal.onConfirm}
                 onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+            />
+            <Toast
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast({ message: null, type: 'success' })}
             />
         </div>
     );
