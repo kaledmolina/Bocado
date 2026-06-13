@@ -748,10 +748,20 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
                                     <button
                                         type="button"
                                         onClick={() => setScannerActive(true)}
-                                        className="py-3 px-6 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-black rounded-2xl text-xs shadow-md shadow-orange-600/15 hover:shadow-lg transition-all hover:scale-102 flex items-center gap-2 cursor-pointer"
+                                        className="py-3 px-6 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-black rounded-2xl text-xs shadow-md shadow-orange-500/15 hover:shadow-lg transition-all hover:scale-102 flex items-center gap-2 cursor-pointer"
                                     >
                                         <Camera className="w-4 h-4" /> Activar Cámara y Escanear
                                     </button>
+
+                                    {isDemoMode && (
+                                        <button
+                                            type="button"
+                                            onClick={handleScanSuccess}
+                                            className="mt-3 py-2 px-4 bg-orange-100 hover:bg-orange-200 dark:bg-orange-950/20 dark:hover:bg-orange-950/40 text-orange-650 dark:text-orange-400 font-extrabold rounded-xl text-[11px] transition-all flex items-center gap-1.5 cursor-pointer border border-orange-200/50"
+                                        >
+                                            ⚡ Simular Escaneo Demo
+                                        </button>
+                                    )}
                                 </div>
                                 
                                 <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-snug">
@@ -948,7 +958,7 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
             </footer>
 
             {isDemoMode && (
-                <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 animate-bounce">
+                <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] animate-bounce">
                     <a
                         href="/demo-selector"
                         className="flex items-center gap-1.5 px-5 py-3 bg-orange-600 hover:bg-orange-700 text-white text-xs font-black rounded-full shadow-2xl shadow-orange-500/20 border border-orange-500/35 transition-all hover:scale-105 active:scale-95 cursor-pointer"
