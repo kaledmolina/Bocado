@@ -158,6 +158,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/superadmin/restaurants/{restaurant}/toggle', [DashboardController::class, 'toggleRestaurantStatus'])->name('superadmin.restaurants.toggle');
     Route::post('/superadmin/users/{user}/toggle', [DashboardController::class, 'toggleUserStatus'])->name('superadmin.users.toggle');
     Route::post('/superadmin/restaurants/{restaurant}/reset-demo', [DashboardController::class, 'resetDemoRestaurant'])->name('superadmin.restaurants.reset-demo');
+    Route::delete('/superadmin/restaurants/{restaurant}', [DashboardController::class, 'deleteRestaurant'])->name('superadmin.restaurants.delete');
+    Route::delete('/superadmin/users/{user}', [DashboardController::class, 'deleteUser'])->name('superadmin.users.delete');
 
     // Waiter platform - Shifts
     Route::post('/waiter/shifts/start', [WaiterPlatformController::class, 'startShift'])->name('waiter.shifts.start');

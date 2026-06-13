@@ -143,6 +143,32 @@ class DashboardController extends Controller
         return redirect()->back()->with('success', 'Estado del usuario actualizado.');
     }
 
+    public function deleteRestaurant(Restaurant $restaurant)
+    {
+        if ($restaurant->is_demo) {
+            return redirect()->back()->with('error', 'No puedes eliminar el restaurante demo de la plataforma.');
+        }
+
+        $restaurant->delete();
+
+        return redirect()->back()->with('success', 'El restaurante y todos sus datos asociados fueron eliminados correctamente.');
+    }
+
+    public function deleteUser(User $user)
+    {
+        if ($user->id === Auth::id()) {
+            return redirect()->back()->with('error', 'No puedes eliminar tu propia cuenta de SuperAdmin.');
+        }
+
+        if (in_array($user->email, ['owner@rinconcito.com', 'pedro@rinconcito.com', 'maria@rinconcito.com'])) {
+            return redirect()->back()->with('error', 'No puedes eliminar los usuarios demo esenciales del sistema.');
+        }
+
+        $user->delete();
+
+        return redirect()->back()->with('success', 'El usuario fue eliminado correctamente.');
+    }
+
     public function resetDemoRestaurant(Restaurant $restaurant)
     {
         if (!$restaurant->is_demo) {

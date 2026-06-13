@@ -29,7 +29,8 @@ import {
     DollarSign,
     Sun,
     Moon,
-    RotateCcw
+    RotateCcw,
+    Trash2
 } from 'lucide-react';
 import { 
     ResponsiveContainer, 
@@ -208,6 +209,34 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                 setConfirmModal(prev => ({ ...prev, isOpen: false }));
             },
             isDanger: active,
+        });
+    };
+
+    const deleteRestaurantAction = (id: number, name: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Eliminar Restaurante',
+            message: `¿Estás seguro de que deseas eliminar permanentemente el restaurante "${name}" de la base de datos? Esta acción eliminará también todas sus mesas, productos, pedidos, sesiones de caja y empleados. Esta acción no se puede deshacer.`,
+            confirmLabel: 'Eliminar',
+            onConfirm: () => {
+                router.delete(route('superadmin.restaurants.delete', id));
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            },
+            isDanger: true,
+        });
+    };
+
+    const deleteUserAction = (id: number, name: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Eliminar Usuario',
+            message: `¿Estás seguro de que deseas eliminar permanentemente al usuario "${name}"? Esta acción no se puede deshacer.`,
+            confirmLabel: 'Eliminar',
+            onConfirm: () => {
+                router.delete(route('superadmin.users.delete', id));
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            },
+            isDanger: true,
         });
     };
 
@@ -717,6 +746,15 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                                                 <RotateCcw className="w-4 h-4" />
                                                             </button>
                                                         )}
+                                                        {!restaurant.is_demo && (
+                                                            <button
+                                                                onClick={() => deleteRestaurantAction(restaurant.id, restaurant.name)}
+                                                                className="p-2 text-red-500 hover:bg-red-950/20 rounded-xl transition-all"
+                                                                title="Eliminar Restaurante"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        )}
                                                         <button
                                                             onClick={() => setViewingRestaurant(restaurant)}
                                                             className="p-2 text-gray-400 hover:bg-gray-800 rounded-xl transition-all"
@@ -912,6 +950,15 @@ export default function Dashboard({ auth, restaurants, users, totalUsers, totalP
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex justify-end items-center gap-2">
+                                                        {!['owner@rinconcito.com', 'pedro@rinconcito.com', 'maria@rinconcito.com'].includes(user.email) && (
+                                                            <button
+                                                                onClick={() => deleteUserAction(user.id, user.name)}
+                                                                className="p-2 text-red-500 hover:bg-red-950/20 rounded-xl transition-all"
+                                                                title="Eliminar Usuario"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        )}
                                                         <button
                                                             onClick={() => setViewingUser(user)}
                                                             className="p-2 text-gray-400 hover:bg-gray-800 rounded-xl transition-all"
