@@ -179,6 +179,10 @@ Route::middleware('auth')->group(function () {
 });
 
 // Demo Auto-Login Routes
+Route::get('/demo-selector', function () {
+    return Inertia::render('Auth/DemoSelector');
+})->name('demo.selector');
+
 Route::get('/demo-login/client', function () {
     $rinconcito = \App\Models\Restaurant::where('name', 'El Rinconcito Italiano')->first();
     if ($rinconcito) {

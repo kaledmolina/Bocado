@@ -186,7 +186,7 @@ export default function Welcome({ auth }: PageProps) {
                     <p className="text-sm sm:text-base text-slate-600 dark:text-gray-400 leading-relaxed">
                         Digitaliza tus mesas con códigos QR únicos. Tus meseros toman los pedidos rápidamente desde sus móviles y tus clientes visualizan su cuenta en curso en tiempo real. Cero pérdidas, máxima velocidad.
                     </p>
-                    <div className="flex flex-wrap items-center gap-4 pt-2">
+                    <div className="flex flex-wrap items-center gap-3 pt-4">
                         <Link
                             href="/register"
                             className="py-3 px-6 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold rounded-2xl shadow-lg shadow-orange-500/10 transition-all text-sm hover:scale-[1.02] active:scale-[0.98]"
@@ -194,32 +194,18 @@ export default function Welcome({ auth }: PageProps) {
                             Comenzar Gratis
                         </Link>
                         
-                        <div className="relative group">
-                            <button
-                                type="button"
-                                className="py-3 px-6 bg-orange-600 hover:bg-orange-700 text-white font-black rounded-2xl transition-all text-sm hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 shadow-md shadow-orange-600/15 cursor-pointer"
-                            >
-                                <span>Probar Demo En Vivo ⚡</span>
-                                <svg className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                            <div className="absolute left-0 mt-2 w-56 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-2 hidden group-hover:block hover:block transition-all z-30 animate-fade-in">
-                                <a href="/demo-login/owner" className="flex items-center px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-250 hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:text-orange-600 dark:hover:text-orange-400">
-                                    💼 Propietario (Dashboard)
-                                </a>
-                                <a href="/demo-login/waiter" className="flex items-center px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-250 hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:text-orange-600 dark:hover:text-orange-400">
-                                    Mesero (Panel de Pedidos)
-                                </a>
-                                <a href="/demo-login/client" className="flex items-center px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-250 hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:text-orange-600 dark:hover:text-orange-400">
-                                    🍽️ Cliente (Menú QR Real)
-                                </a>
-                            </div>
-                        </div>
+                        <Link
+                            href={route('demo.selector')}
+                            className="py-3 px-6 bg-orange-600 hover:bg-orange-700 text-white font-black rounded-2xl transition-all text-sm hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-orange-600/15"
+                        >
+                            Probar Demo En Vivo ⚡
+                        </Link>
 
                         <Link
                             href="/simulator"
-                            className="py-3 px-6 bg-slate-200/80 hover:bg-slate-200 border border-slate-300 text-slate-700 hover:text-slate-900 dark:bg-gray-900/60 dark:hover:bg-gray-900 dark:border-gray-800 dark:text-gray-300 dark:hover:text-white font-bold rounded-2xl transition-all text-sm hover:scale-[1.02] active:scale-[0.98]"
+                            className="py-3 px-6 bg-slate-200/80 hover:bg-slate-350 dark:bg-slate-900/60 dark:hover:bg-slate-900 border border-slate-300 dark:border-gray-800 text-slate-700 hover:text-slate-900 dark:text-gray-300 dark:hover:text-white font-bold rounded-2xl transition-all text-sm hover:scale-[1.02] active:scale-[0.98]"
                         >
-                            Probar Simulador en Vivo
+                            Probar Simulador
                         </Link>
                     </div>
                 </div>
