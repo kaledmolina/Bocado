@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ApiRestaurantController;
 use App\Http\Controllers\Api\ApiTableController;
 use App\Http\Controllers\Api\ApiOrderController;
 use App\Http\Controllers\Api\ApiWaiterController;
+use App\Http\Controllers\Api\ApiAdminWaiterController;
 use App\Http\Controllers\Api\ApiCashController;
 use App\Http\Controllers\Api\ApiDashboardController;
 use App\Http\Controllers\Api\ApiProductController;
@@ -61,6 +62,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tables/{table}/release', [ApiOrderController::class, 'releaseTable']);
     Route::post('/tables/{table}/clear-client-cart', [ApiOrderController::class, 'clearClientCart']);
     Route::post('/tables/{table}/request-payment', [ApiOrderController::class, 'requestPayment']);
+
+    // Admin - Waiter Management
+    Route::get('/admin/waiters', [ApiAdminWaiterController::class, 'index']);
+    Route::post('/admin/waiters', [ApiAdminWaiterController::class, 'store']);
+    Route::put('/admin/waiters/{waiter}', [ApiAdminWaiterController::class, 'update']);
+    Route::delete('/admin/waiters/{waiter}', [ApiAdminWaiterController::class, 'destroy']);
+    Route::post('/admin/waiters/{waiter}/toggle-status', [ApiAdminWaiterController::class, 'toggleStatus']);
+    Route::post('/admin/applications/{application}', [ApiAdminWaiterController::class, 'processApplication']);
+    Route::post('/admin/waiters/{waiter}/hire', [ApiAdminWaiterController::class, 'hireWaiter']);
 
     // Waiter actions
     Route::post('/waiter/shifts/start', [ApiWaiterController::class, 'startShift']);
