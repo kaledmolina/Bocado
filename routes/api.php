@@ -71,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/waiters/{waiter}/toggle-status', [ApiAdminWaiterController::class, 'toggleStatus']);
     Route::post('/admin/applications/{application}', [ApiAdminWaiterController::class, 'processApplication']);
     Route::post('/admin/waiters/{waiter}/hire', [ApiAdminWaiterController::class, 'hireWaiter']);
+    Route::post('/admin/waiters/{waiter}/rate', [ApiAdminWaiterController::class, 'rateWaiter']);
 
     // Waiter actions
     Route::post('/waiter/shifts/start', [ApiWaiterController::class, 'startShift']);

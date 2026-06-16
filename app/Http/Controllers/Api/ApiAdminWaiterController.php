@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\Rules;
+use App\Models\WaiterRating;
+use App\Models\Shift;
 
 class ApiAdminWaiterController extends Controller
 {
@@ -219,5 +221,36 @@ class ApiAdminWaiterController extends Controller
         ]);
 
         return response()->json(['status' => 'success', 'message' => 'Oferta de empleo enviada al mesero.']);
+    }
+
+    public function rateWaiter(Request $request, User $waiter)
+    {
+        $user = Auth::user();
+        if (!$user->isAdmin() || $waiter->restaurant_id !== $user->restaurant_id || !$waiter->isWaiter()) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $validated = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:500'
+        ]);
+
+        WaiterRating::create([
+            'waiter_id' => $waiter->id,
+            'restaurant_id' => $user->restaurant_id,
+            'rating' => $validated['rating'],
+            'comment' => $validated['comment']
+        ]);
+
+        Shift::where('user_id', $waiter->id)->whereNull('ended_at')->update(['ended_at' => now()]);
+
+        $waiter->update([
+            'restaurant_id' => null
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Contrato finalizado y mesero calificado.'
+        ]);
     }
 }
