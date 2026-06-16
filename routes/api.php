@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ApiOrderController;
 use App\Http\Controllers\Api\ApiWaiterController;
 use App\Http\Controllers\Api\ApiCashController;
 use App\Http\Controllers\Api\ApiDashboardController;
+use App\Http\Controllers\Api\ApiProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Restaurant administration
     Route::get('/dashboard', [ApiDashboardController::class, 'index']);
     Route::post('/restaurants/settings/toggle-hiring', [ApiRestaurantController::class, 'toggleHiring']);
+    
+    // Menu & Products
+    Route::get('/products', [ApiProductController::class, 'index']);
+    Route::post('/products/{id}/toggle', [ApiProductController::class, 'toggleAvailability']);
 
     // Tables management
     Route::get('/tables', [ApiTableController::class, 'index']);
