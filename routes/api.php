@@ -44,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Menu & Products
     Route::get('/products', [ApiProductController::class, 'index']);
+    Route::post('/products', [ApiProductController::class, 'store']);
     Route::post('/products/{id}/toggle', [ApiProductController::class, 'toggleAvailability']);
 
     // Tables management
