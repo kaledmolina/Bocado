@@ -54,9 +54,18 @@ class ApiProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'category' => 'required|string|max:255',
-            'is_available' => 'required|boolean',
+            'is_available' => 'required|in:true,false,1,0',
+            'image' => 'nullable|image|max:2048',
             'image_url' => 'nullable|url'
         ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $imagePath = '/storage/' . $path;
+        } elseif ($request->filled('image_url')) {
+            $imagePath = $request->input('image_url');
+        }
 
         $product = new Product();
         $product->restaurant_id = $user->restaurant_id;
@@ -64,8 +73,9 @@ class ApiProductController extends Controller
         $product->description = $validated['description'] ?? null;
         $product->price = $validated['price'];
         $product->category = $validated['category'];
-        $product->is_available = $validated['is_available'];
-        $product->image_path = $validated['image_url'] ?? null;
+        // Handle string booleans from FormData
+        $product->is_available = filter_var($validated['is_available'], FILTER_VALIDATE_BOOLEAN);
+        $product->image_path = $imagePath;
         
         $product->save();
 
