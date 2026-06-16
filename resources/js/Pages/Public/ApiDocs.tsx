@@ -436,9 +436,9 @@ export default function ApiDocs() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div className="border border-slate-150 dark:border-slate-800 rounded-2xl p-5 bg-slate-50/50 dark:bg-slate-950/30">
-                                    <h4 className="font-bold text-sm mb-2 text-slate-850 dark:text-white">URL Base de Desarrollo</h4>
+                                    <h4 className="font-bold text-sm mb-2 text-slate-850 dark:text-white">URL Base</h4>
                                     <code className="text-xs bg-slate-100 dark:bg-slate-900 p-2.5 rounded-lg block font-mono text-orange-600 dark:text-orange-400 border dark:border-slate-800">
-                                        http://localhost/api
+                                        https://bocado.click/api
                                     </code>
                                 </div>
                                 <div className="border border-slate-150 dark:border-slate-800 rounded-2xl p-5 bg-slate-50/50 dark:bg-slate-950/30">
