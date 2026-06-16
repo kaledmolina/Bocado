@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ApiTableController;
 use App\Http\Controllers\Api\ApiOrderController;
 use App\Http\Controllers\Api\ApiWaiterController;
 use App\Http\Controllers\Api\ApiCashController;
+use App\Http\Controllers\Api\ApiDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [ApiAuthController::class, 'logout']);
 
     // Restaurant administration
+    Route::get('/dashboard', [ApiDashboardController::class, 'index']);
     Route::post('/restaurants/settings/toggle-hiring', [ApiRestaurantController::class, 'toggleHiring']);
 
     // Tables management
