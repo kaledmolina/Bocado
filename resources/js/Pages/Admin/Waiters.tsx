@@ -475,20 +475,6 @@ export default function Waiters({ waiters, invitationLink, applications = [], av
                                                             >
                                                                 <Eye className="w-4 h-4" />
                                                             </button>
-                                                            <button
-                                                                onClick={() => openEditModal(waiter)}
-                                                                className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-xl transition-all"
-                                                                title="Editar"
-                                                            >
-                                                                <Edit className="w-4 h-4" />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleOpenRatingModal(waiter)}
-                                                                className="p-2 text-red-655 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all font-bold"
-                                                                title="Finalizar Contrato / Eliminar"
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                            </button>
                                                         </div>
                                                     </td>
                                                 </tr>
