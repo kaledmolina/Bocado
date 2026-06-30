@@ -187,6 +187,11 @@ Route::get('/demo-selector', function () {
 })->name('demo.selector');
 
 Route::get('/demo-login/client', function () {
+    \Illuminate\Support\Facades\Auth::logout();
+    session()->invalidate();
+    session()->regenerateToken();
+    session(['is_demo_user' => true]);
+
     $rinconcito = \App\Models\Restaurant::where('name', 'El Rinconcito Italiano')->first();
     if ($rinconcito) {
         $table = $rinconcito->tables()->where('number', 'Mesa 1')->first();
