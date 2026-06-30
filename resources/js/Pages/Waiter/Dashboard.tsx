@@ -177,10 +177,21 @@ export default function Dashboard({ tables = [], waiterName, restaurant, hiringR
         isOpen: boolean;
         tableId: number;
         totalAmount: number;
+        order?: any;
     }>({
         isOpen: false,
         tableId: 0,
         totalAmount: 0,
+    });
+
+    const [orderSelectionModal, setOrderSelectionModal] = useState<{
+        isOpen: boolean;
+        tableId: number;
+        orders: any[];
+    }>({
+        isOpen: false,
+        tableId: 0,
+        orders: [],
     });
 
     const [showNotifications, setShowNotifications] = useState(false);
@@ -196,23 +207,40 @@ export default function Dashboard({ tables = [], waiterName, restaurant, hiringR
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handlePay = (e: React.MouseEvent, tableId: number, total: number) => {
+    const handlePay = (e: React.MouseEvent, table: Table) => {
         e.stopPropagation();
         e.preventDefault();
-        setPaymentModal({
-            isOpen: true,
-            tableId,
-            totalAmount: total,
-        });
+        
+        if (!table.active_orders || table.active_orders.length === 0) {
+            setToast({ message: 'No hay pedidos activos para cobrar.', type: 'error' });
+            return;
+        }
+
+        if (table.active_orders.length > 1) {
+            setOrderSelectionModal({
+                isOpen: true,
+                tableId: table.id,
+                orders: table.active_orders,
+            });
+        } else {
+            setPaymentModal({
+                isOpen: true,
+                tableId: table.id,
+                totalAmount: Number(table.active_orders[0].total_amount),
+                order: table.active_orders[0],
+            });
+        }
     };
 
     const handleConfirmPayment = (receivedAmount: number, changeAmount: number) => {
         router.post(route('tables.pay', paymentModal.tableId), {
             received_amount: receivedAmount,
             change_amount: changeAmount,
+            order_id: paymentModal.order?.id,
         }, {
-            onFinish: () => {
+            onSuccess: () => {
                 setPaymentModal(prev => ({ ...prev, isOpen: false }));
+                setOrderSelectionModal(prev => ({ ...prev, isOpen: false }));
             }
         });
     };
@@ -1152,7 +1180,7 @@ export default function Dashboard({ tables = [], waiterName, restaurant, hiringR
                                                         </button>
                                                         {restaurant.waiters_can_collect_payment && (
                                                             <button 
-                                                                onClick={(e) => handlePay(e, table.id, Number(table.active_order?.total_amount || 0))} 
+                                                                onClick={(e) => handlePay(e, table)} 
                                                                 type="button" 
                                                                 className="flex-1 py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-black rounded-xl text-[10.5px] shadow-sm shadow-emerald-500/10 transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95"
                                                             >
@@ -1195,9 +1223,65 @@ export default function Dashboard({ tables = [], waiterName, restaurant, hiringR
                 isOpen={paymentModal.isOpen}
                 title="Registrar Cobro"
                 totalAmount={paymentModal.totalAmount}
+                order={paymentModal.order}
                 onConfirm={handleConfirmPayment}
-                onCancel={() => setPaymentModal(prev => ({ ...prev, isOpen: false }))}
+                onCancel={() => setPaymentModal(prev => ({ ...prev, isOpen: false, order: undefined }))}
             />
+
+            {/* Order Selection Modal */}
+            {orderSelectionModal.isOpen && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in font-sans">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-6">
+                        <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-800 pb-3">
+                            <h3 className="text-lg font-black flex items-center gap-2 text-gray-900 dark:text-white">
+                                <Coins className="w-6 h-6 text-emerald-500" />
+                                Seleccionar Pedido a Cobrar
+                            </h3>
+                            <button onClick={() => setOrderSelectionModal(prev => ({ ...prev, isOpen: false }))} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                            {orderSelectionModal.orders.map((ord: any) => (
+                                <div key={ord.id} className="p-4 bg-gray-50 dark:bg-gray-850 border border-gray-150 dark:border-gray-800 rounded-2xl flex flex-col gap-3">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <span className="text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2 py-1 rounded-lg font-bold">
+                                                #{ord.id.toString().padStart(5, '0')}
+                                            </span>
+                                            <div className="mt-1 font-bold text-gray-800 dark:text-gray-200 text-sm">
+                                                A nombre de: {ord.customer_name || 'Desconocido'}
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-xl font-black text-emerald-600 dark:text-emerald-400">
+                                                ${Number(ord.total_amount).toFixed(2)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 pt-2 line-clamp-2">
+                                        {ord.items?.map((item: any) => `${item.quantity}x ${item.product?.name}`).join(', ')}
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            setPaymentModal({
+                                                isOpen: true,
+                                                tableId: orderSelectionModal.tableId,
+                                                totalAmount: Number(ord.total_amount),
+                                                order: ord
+                                            });
+                                        }}
+                                        className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex justify-center items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                                    >
+                                        <Coins className="w-3.5 h-3.5" />
+                                        Cobrar este pedido
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {restaurant && activeShift && (
                 <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end" ref={notificationsRef}>
