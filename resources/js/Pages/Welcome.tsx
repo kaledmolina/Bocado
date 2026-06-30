@@ -1,10 +1,11 @@
 import { Head, Link } from '@inertiajs/react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import Reveal from '@/Components/Reveal';
 import { 
     QrCode, Briefcase, Lightbulb, TrendingUp, ChevronRight,
-    Utensils, ChefHat, PlusCircle, CheckCircle2, DollarSign, Smartphone, ShieldCheck
+    Utensils, ChefHat, PlusCircle, CheckCircle2, DollarSign, Smartphone,
+    Sparkles, ArrowRight, ChevronDown
 } from 'lucide-react';
 
 interface PageProps {
@@ -16,6 +17,47 @@ interface PageProps {
 export default function Welcome({ auth }: PageProps) {
     const [activeStep, setActiveStep] = useState<number>(1);
     const [isAutoPlaying, setIsAutoPlaying] = useState<boolean>(true);
+    const [openFaq, setOpenFaq] = useState<number | null>(null);
+    const [counts, setCounts] = useState({ restaurants: 0, orders: 0, waiters: 0, tables: 0 });
+    const statsRef = useRef<HTMLDivElement>(null);
+    const [statsVisible, setStatsVisible] = useState(false);
+
+    // Animated counters
+    useEffect(() => {
+        if (!statsVisible) return;
+        const target = { restaurants: 128, orders: 52430, waiters: 847, tables: 964 };
+        const duration = 2000;
+        const steps = 60;
+        const interval = duration / steps;
+        let step = 0;
+
+        const timer = setInterval(() => {
+            step++;
+            const progress = Math.min(step / steps, 1);
+            const ease = 1 - Math.pow(1 - progress, 3);
+            setCounts({
+                restaurants: Math.round(ease * target.restaurants),
+                orders: Math.round(ease * target.orders),
+                waiters: Math.round(ease * target.waiters),
+                tables: Math.round(ease * target.tables),
+            });
+            if (progress >= 1) clearInterval(timer);
+        }, interval);
+
+        return () => clearInterval(timer);
+    }, [statsVisible]);
+
+    // Intersection Observer for stats
+    useEffect(() => {
+        const el = statsRef.current;
+        if (!el) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => { if (entry.isIntersecting) { setStatsVisible(true); observer.disconnect(); } },
+            { threshold: 0.3 }
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
 
     const steps = [
         {
@@ -32,7 +74,7 @@ export default function Welcome({ auth }: PageProps) {
                         <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
                     </div>
                     <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-gray-800 rounded-2xl shadow-sm text-xs">
-                        <p className="font-bold text-slate-805 dark:text-white">✓ Mesa 5 Creada Exitosamente</p>
+                        <p className="font-bold text-slate-800 dark:text-white">✓ Mesa 5 Creada Exitosamente</p>
                         <p className="text-[10px] text-slate-400 mt-1">Token QR generado: table_tkn_8172</p>
                     </div>
                     <div className="flex justify-center py-2">
@@ -77,7 +119,7 @@ export default function Welcome({ auth }: PageProps) {
                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Celular de Cliente</span>
                         <span className="text-[9px] font-bold text-blue-600 px-2 py-0.5 bg-blue-500/10 rounded-full">Mesa 5</span>
                     </div>
-                    <div className="p-3 bg-white dark:bg-slate-900 border border-slate-205 dark:border-gray-800 rounded-2xl shadow-sm text-center space-y-2">
+                    <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-gray-800 rounded-2xl shadow-sm text-center space-y-2">
                         <span className="text-xl">🛒</span>
                         <p className="text-[10px] text-slate-600 dark:text-gray-300">Enviando <strong>1x Fetuccini Alfredo</strong> a cocina...</p>
                         <div className="h-1.5 w-full bg-slate-100 dark:bg-gray-800 rounded-full overflow-hidden">
@@ -92,7 +134,7 @@ export default function Welcome({ auth }: PageProps) {
             title: "Mesero Atiende",
             icon: <ChefHat className="w-5 h-5" />,
             role: "Personal / Mesero",
-            badgeColor: "bg-emerald-500/10 text-emerald-650",
+            badgeColor: "bg-emerald-500/10 text-emerald-600",
             desc: "El mesero visualiza el pedido, lo confirma en cocina, y opcionalmente añade platos adicionales a la comanda.",
             mockup: (
                 <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border border-slate-100 dark:border-gray-800 space-y-4 animate-fade-in">
@@ -115,7 +157,7 @@ export default function Welcome({ auth }: PageProps) {
             title: "Mesero Sirve",
             icon: <CheckCircle2 className="w-5 h-5" />,
             role: "Personal / Mesero",
-            badgeColor: "bg-emerald-500/10 text-emerald-650",
+            badgeColor: "bg-emerald-500/10 text-emerald-600",
             desc: "La cocina termina el plato, y el mesero lo sirve en la mesa marcándolo como completado desde el portal.",
             mockup: (
                 <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border border-slate-100 dark:border-gray-800 space-y-4 animate-fade-in">
@@ -143,7 +185,7 @@ export default function Welcome({ auth }: PageProps) {
                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Auditoría y Reportes</span>
                         <span className="text-[9px] font-black text-green-600">Facturado</span>
                     </div>
-                    <div className="p-3 bg-white dark:bg-slate-900 border border-slate-205 dark:border-gray-800 rounded-2xl shadow-sm space-y-2 text-xs">
+                    <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-gray-800 rounded-2xl shadow-sm space-y-2 text-xs">
                         <div className="flex justify-between">
                             <span>Ingreso Generado:</span>
                             <span className="font-extrabold text-green-600">$16.500</span>
@@ -169,13 +211,21 @@ export default function Welcome({ auth }: PageProps) {
 
     return (
         <PublicLayout>
-            <Head title="bocado! - Gestión de Pedidos en Tiempo Real" />
+            <Head title="bocado! - Gestión de Pedidos para Restaurantes en Tiempo Real | Sistema Digital QR">
+                <meta name="description" content="Digitaliza tu restaurante con bocado!. Códigos QR por mesa, pedidos al instante, control de caja y métricas en vivo. Comienza gratis." />
+                <meta name="keywords" content="restaurante, pedidos, QR, mesero, digital, menú, gestión" />
+            </Head>
 
             {/* Hero Section */}
-            <section className="max-w-7xl mx-auto px-6 py-20 lg:py-28 grid grid-cols-1 lg:grid-cols-2 items-center gap-12 relative z-10 text-slate-800 dark:text-gray-100">
-                <div className="space-y-6 max-w-xl animate-fade-in">
-                    <span className="px-3.5 py-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 font-extrabold text-[10px] uppercase tracking-widest rounded-full">
-                        🚀 Toma de pedidos digital móvil
+            <section className="relative max-w-7xl mx-auto px-6 pt-16 pb-10 lg:pt-24 lg:pb-16 grid grid-cols-1 lg:grid-cols-2 items-center gap-12 z-10 text-slate-800 dark:text-gray-100 overflow-hidden">
+                {/* Gradient orbs animados */}
+                <div className="absolute -top-40 -left-40 w-80 h-80 bg-orange-500/10 rounded-full blur-[100px] animate-pulse-soft pointer-events-none" />
+                <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-amber-500/10 rounded-full blur-[100px] animate-float-slow pointer-events-none" />
+                
+                <div className="space-y-7 max-w-xl animate-fade-in relative">
+                    <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 font-extrabold text-[10px] uppercase tracking-widest rounded-full">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Toma de pedidos digital móvil
                     </span>
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05] text-slate-900 dark:text-white">
                         Toma los pedidos de tu restaurante{' '}
@@ -183,30 +233,53 @@ export default function Welcome({ auth }: PageProps) {
                             al instante.
                         </span>
                     </h1>
-                    <p className="text-sm sm:text-base text-slate-600 dark:text-gray-400 leading-relaxed">
+                    <p className="text-sm sm:text-base text-slate-600 dark:text-gray-400 leading-relaxed max-w-lg">
                         Digitaliza tus mesas con códigos QR únicos. Tus meseros toman los pedidos rápidamente desde sus móviles y tus clientes visualizan su cuenta en curso en tiempo real. Cero pérdidas, máxima velocidad.
                     </p>
-                    <div className="flex flex-wrap items-center gap-3 pt-4">
+                    <div className="flex flex-wrap items-center gap-3 pt-2">
                         <Link
                             href="/register"
-                            className="py-3 px-6 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold rounded-2xl shadow-lg shadow-orange-500/10 transition-all text-sm hover:scale-[1.02] active:scale-[0.98]"
+                            className="group relative py-3.5 px-7 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold rounded-2xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all text-sm hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
                         >
-                            Comenzar Gratis
+                            <span className="relative z-10 flex items-center gap-2">
+                                Comenzar Gratis
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </span>
+                            <span className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                         </Link>
                         
                         <Link
                             href={route('demo.selector')}
-                            className="py-3 px-6 bg-orange-600 hover:bg-orange-700 text-white font-black rounded-2xl transition-all text-sm hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-orange-600/15"
+                            className="py-3.5 px-7 bg-orange-600 hover:bg-orange-700 text-white font-black rounded-2xl transition-all text-sm hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-orange-600/20 flex items-center gap-2"
                         >
-                            Demo gratis ⚡
+                            <span>⚡</span>
+                            Demo gratis
                         </Link>
+                    </div>
+
+                    {/* Trust line */}
+                    <div className="flex items-center gap-4 pt-3 text-[10px] text-slate-400 dark:text-gray-500">
+                        <div className="flex -space-x-2">
+                            {[1,2,3,4].map(i => (
+                                <div key={i} className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 border-2 border-white dark:border-slate-950 flex items-center justify-center text-[8px] text-white font-black shadow-sm">
+                                    {['👨‍🍳','👩‍🍳','🧑‍💼','👨‍🍳'][i-1]}
+                                </div>
+                            ))}
+                        </div>
+                        <span className="font-bold">+<span className="text-orange-500">850</span> meseros activos</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-gray-700" />
+                        <span className="font-bold">⭐ 4.9/5</span>
                     </div>
                 </div>
 
                 {/* 3D Floating Mockup Cards */}
-                <div className="relative w-full h-[320px] sm:h-[400px] flex items-center justify-center perspective-1000 select-none animate-fade-in">
+                <div className="relative w-full h-[340px] sm:h-[420px] flex items-center justify-center perspective-1000 select-none animate-fade-in">
+                    {/* Decorative ring */}
+                    <div className="absolute w-64 h-64 sm:w-80 sm:h-80 rounded-full border border-orange-500/10 animate-spin-slow pointer-events-none" />
+                    <div className="absolute w-48 h-48 sm:w-60 sm:h-60 rounded-full border border-orange-500/5 -rotate-45 animate-spin-slow pointer-events-none" style={{ animationDuration: '30s' }} />
+
                     {/* Admin Dashboard Mockup Card */}
-                    <div className="absolute w-[280px] sm:w-[350px] p-5 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-3xl shadow-2xl hover-tilt-3d pointer-events-auto transition-colors duration-300 animate-float">
+                    <div className="absolute w-[280px] sm:w-[350px] p-5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-slate-200/80 dark:border-gray-800/80 rounded-3xl shadow-2xl hover-tilt-3d pointer-events-auto transition-all duration-500 animate-float">
                         <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-gray-800 mb-3">
                             <span className="text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-widest">Panel del Admin</span>
                             <div className="flex gap-1.5">
@@ -221,18 +294,18 @@ export default function Welcome({ auth }: PageProps) {
                                 <span className="text-xs font-bold text-green-600 dark:text-green-400">$340.000</span>
                             </div>
                             <div className="h-2 w-full bg-slate-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                                <div className="h-full bg-green-500 w-[70%]" />
+                                <div className="h-full bg-gradient-to-r from-green-500 to-emerald-400 w-[70%] rounded-full animate-shimmer" />
                             </div>
                             <div className="space-y-2">
                                 <p className="text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase">Monitoreo de Mesas</p>
                                 <div className="grid grid-cols-2 gap-2 text-[10px]">
-                                    <div className="p-2 bg-slate-50 dark:bg-gray-950 rounded-xl flex items-center justify-between border border-slate-100 dark:border-gray-800">
+                                    <div className="p-2 bg-slate-50 dark:bg-gray-950/50 rounded-xl flex items-center justify-between border border-slate-100 dark:border-gray-800">
                                         <span className="text-slate-700 dark:text-gray-300 font-semibold">Mesa 1</span>
-                                        <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                                        <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse-soft" />
                                     </div>
-                                    <div className="p-2 bg-slate-50 dark:bg-gray-950 rounded-xl flex items-center justify-between border border-amber-500/20">
+                                    <div className="p-2 bg-slate-50 dark:bg-gray-950/50 rounded-xl flex items-center justify-between border border-amber-500/20">
                                         <span className="text-slate-700 dark:text-gray-300 font-semibold">Mesa 2</span>
-                                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse-soft" style={{ animationDelay: '1s' }} />
                                     </div>
                                 </div>
                             </div>
@@ -240,27 +313,27 @@ export default function Welcome({ auth }: PageProps) {
                     </div>
 
                     {/* Waiter Mobile App Mockup Card */}
-                    <div className="absolute w-[180px] sm:w-[220px] p-4 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-3xl shadow-2xl hover-tilt-3d-reverse left-[60%] sm:left-[55%] top-[40%] sm:top-[30%] pointer-events-auto transition-colors duration-300 animate-float-delayed">
+                    <div className="absolute w-[180px] sm:w-[220px] p-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-slate-200/80 dark:border-gray-800/80 rounded-3xl shadow-2xl hover-tilt-3d-reverse left-[60%] sm:left-[55%] top-[38%] sm:top-[28%] pointer-events-auto transition-all duration-500 animate-float-delayed">
                         <div className="flex justify-between items-center mb-3">
                             <span className="text-[9px] font-bold text-slate-500 dark:text-gray-400">Mesa 2 (Mesero)</span>
-                            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse-soft" style={{ animationDelay: '0.5s' }} />
                         </div>
                         <div className="space-y-2.5">
-                            <div className="p-2 bg-slate-50 dark:bg-gray-955/20 border border-slate-100 dark:border-gray-800 flex justify-between items-center text-[10px]">
+                            <div className="p-2 bg-slate-50 dark:bg-gray-950/30 border border-slate-100 dark:border-gray-800/50 flex justify-between items-center text-[10px] rounded-xl">
                                 <div>
                                     <p className="font-semibold text-slate-700 dark:text-gray-300">Pizza Margarita</p>
                                     <p className="text-[8px] text-slate-400 dark:text-gray-500">1x (Sin cebolla)</p>
                                 </div>
                                 <span className="font-bold text-orange-600 dark:text-orange-400">$15.000</span>
                             </div>
-                            <div className="p-2 bg-slate-50 dark:bg-gray-955/20 border border-slate-100 dark:border-gray-800 flex justify-between items-center text-[10px]">
+                            <div className="p-2 bg-slate-50 dark:bg-gray-950/30 border border-slate-100 dark:border-gray-800/50 flex justify-between items-center text-[10px] rounded-xl">
                                 <div>
                                     <p className="font-semibold text-slate-700 dark:text-gray-300">Coca Cola</p>
                                     <p className="text-[8px] text-slate-400 dark:text-gray-500">1x</p>
                                 </div>
                                 <span className="font-bold text-orange-600 dark:text-orange-400">$3.000</span>
                             </div>
-                            <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-gray-800 text-[10px]">
+                            <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-gray-800/50 text-[10px]">
                                 <span className="text-slate-400 dark:text-gray-500 font-bold">TOTAL</span>
                                 <span className="font-black text-slate-900 dark:text-white">$18.000</span>
                             </div>
@@ -268,6 +341,40 @@ export default function Welcome({ auth }: PageProps) {
                     </div>
                 </div>
             </section>
+
+            {/* Trust/Stats Bar */}
+            <Reveal>
+                <div ref={statsRef} className="max-w-6xl mx-auto px-6 pb-6 relative z-10">
+                    <div className="bg-white dark:bg-gray-900/60 border border-slate-200 dark:border-gray-800 rounded-[32px] p-8 sm:p-10 shadow-sm">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                            <div className="space-y-1.5">
+                                <div className="text-3xl sm:text-4xl font-black text-orange-600 dark:text-orange-400 tabular-nums">
+                                    {counts.restaurants}+
+                                </div>
+                                <p className="text-[11px] text-slate-500 dark:text-gray-400 font-bold uppercase tracking-wider">Restaurantes Activos</p>
+                            </div>
+                            <div className="space-y-1.5">
+                                <div className="text-3xl sm:text-4xl font-black text-orange-600 dark:text-orange-400 tabular-nums">
+                                    {counts.orders.toLocaleString()}
+                                </div>
+                                <p className="text-[11px] text-slate-500 dark:text-gray-400 font-bold uppercase tracking-wider">Pedidos Procesados</p>
+                            </div>
+                            <div className="space-y-1.5">
+                                <div className="text-3xl sm:text-4xl font-black text-orange-600 dark:text-orange-400 tabular-nums">
+                                    {counts.waiters}
+                                </div>
+                                <p className="text-[11px] text-slate-500 dark:text-gray-400 font-bold uppercase tracking-wider">Meseros Registrados</p>
+                            </div>
+                            <div className="space-y-1.5">
+                                <div className="text-3xl sm:text-4xl font-black text-orange-600 dark:text-orange-400 tabular-nums">
+                                    {counts.tables}
+                                </div>
+                                <p className="text-[11px] text-slate-500 dark:text-gray-400 font-bold uppercase tracking-wider">Mesas Digitalizadas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Reveal>
 
             {/* Agile Value Proposition Section */}
             <Reveal>
@@ -732,7 +839,7 @@ export default function Welcome({ auth }: PageProps) {
                                         <span className="text-4xl font-black text-slate-900 dark:text-white">$0</span>
                                         <span className="text-sm text-slate-400 line-through font-medium">$89.900</span>
                                     </div>
-                                    <p className="text-[10px] text-emerald-600 dark:text-emerald-450 font-extrabold mt-2">
+                                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-extrabold mt-2">
                                         Apertura Gratuita
                                     </p>
                                 </div>
@@ -771,7 +878,7 @@ export default function Welcome({ auth }: PageProps) {
                 </section>
             </Reveal>
 
-            {/* FAQ Section */}
+            {/* FAQ Section - Accordion */}
             <Reveal>
                 <section className="max-w-4xl mx-auto px-6 py-20 border-t border-slate-200 dark:border-gray-900 relative z-10 text-slate-800 dark:text-gray-150">
                     <div className="text-center max-w-xl mx-auto mb-16">
@@ -782,7 +889,7 @@ export default function Welcome({ auth }: PageProps) {
                         </p>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {[
                             {
                                 q: "¿Necesito comprar tabletas o pantallas costosas para mi local?",
@@ -805,10 +912,21 @@ export default function Welcome({ auth }: PageProps) {
                                 a: "El uso de PIN es configurable por el administrador. Sirve como un filtro de seguridad robusto para que solo comensales físicos sentados en la mesa puedan emitir pedidos falsos o visualizar el consumo en curso."
                             }
                         ].map((faq, idx) => (
-                            <div key={idx} className="p-6 bg-white dark:bg-gray-900/50 border border-slate-200 dark:border-gray-800 rounded-3xl space-y-2">
-                                <h4 className="font-extrabold text-slate-900 dark:text-white text-sm">{faq.q}</h4>
-                                <p className="text-xs text-slate-500 dark:text-gray-400 leading-relaxed">{faq.a}</p>
-                            </div>
+                            <button
+                                key={idx}
+                                onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                                className="w-full text-left p-5 bg-white dark:bg-gray-900/50 border border-slate-200 dark:border-gray-800 rounded-2xl hover:border-orange-500/20 transition-all cursor-pointer"
+                            >
+                                <div className="flex items-center justify-between gap-4">
+                                    <h4 className="font-extrabold text-slate-900 dark:text-white text-sm">{faq.q}</h4>
+                                    <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300 ${openFaq === idx ? 'rotate-180 text-orange-500' : ''}`} />
+                                </div>
+                                <div className={`accordion-content ${openFaq === idx ? 'open' : ''}`}>
+                                    <div>
+                                        <p className="text-xs text-slate-500 dark:text-gray-400 leading-relaxed pt-3">{faq.a}</p>
+                                    </div>
+                                </div>
+                            </button>
                         ))}
                     </div>
                 </section>
@@ -826,36 +944,84 @@ export default function Welcome({ auth }: PageProps) {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="p-6 bg-white dark:bg-gray-900/30 border border-slate-200 dark:border-gray-900 rounded-3xl hover:border-orange-500/20 hover:shadow-md transition-all hover:-translate-y-1">
-                            <span className="text-2xl">📱</span>
-                            <h4 className="font-bold mt-3 text-slate-900 dark:text-white">Interfaz Ultra-Móvil</h4>
-                            <p className="text-xs text-slate-600 dark:text-gray-400 mt-1 leading-relaxed">
+                        <div className="group p-6 bg-white dark:bg-gray-900/30 border border-slate-200 dark:border-gray-900 rounded-3xl hover:border-orange-500/20 hover:shadow-lg transition-all hover:-translate-y-1.5">
+                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-orange-500/20 transition-all">
+                                <Smartphone className="w-5 h-5" />
+                            </div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">Interfaz Ultra-Móvil</h4>
+                            <p className="text-xs text-slate-500 dark:text-gray-400 mt-2 leading-relaxed">
                                 Diseñado específicamente para verse y operar en cualquier teléfono de meseros de gama baja y alta de forma fluida.
                             </p>
                         </div>
 
-                        <div className="p-6 bg-white dark:bg-gray-900/30 border border-slate-200 dark:border-gray-900 rounded-3xl hover:border-orange-500/20 hover:shadow-md transition-all hover:-translate-y-1">
-                            <span className="text-2xl">⚡ Cuentas Claras</span>
-                            <h4 className="font-bold mt-3 text-slate-900 dark:text-white">Sincronización en Vivo</h4>
-                            <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 leading-relaxed">
+                        <div className="group p-6 bg-white dark:bg-gray-900/30 border border-slate-200 dark:border-gray-900 rounded-3xl hover:border-orange-500/20 hover:shadow-lg transition-all hover:-translate-y-1.5">
+                            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-amber-500/20 transition-all">
+                                <TrendingUp className="w-5 h-5" />
+                            </div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">Sincronización en Vivo</h4>
+                            <p className="text-xs text-slate-500 dark:text-gray-400 mt-2 leading-relaxed">
                                 El mesero guarda un pedido y el administrador ve el incremento financiero en el acto. Los clientes escanean el QR y ven lo mismo.
                             </p>
                         </div>
 
-                        <div className="p-6 bg-white dark:bg-gray-900/30 border border-slate-200 dark:border-gray-900 rounded-3xl hover:border-orange-500/20 hover:shadow-md transition-all hover:-translate-y-1">
-                            <span className="text-2xl">🖨️ Códigos QR Generados</span>
-                            <h4 className="font-bold mt-3 text-slate-900 dark:text-white">Códigos QR Listos para Imprimir</h4>
-                            <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 leading-relaxed">
+                        <div className="group p-6 bg-white dark:bg-gray-900/30 border border-slate-200 dark:border-gray-900 rounded-3xl hover:border-orange-500/20 hover:shadow-lg transition-all hover:-translate-y-1.5">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all">
+                                <QrCode className="w-5 h-5" />
+                            </div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">Códigos QR Listos para Imprimir</h4>
+                            <p className="text-xs text-slate-500 dark:text-gray-400 mt-2 leading-relaxed">
                                 Crea una mesa, descarga el código QR autogenerado directamente en formato para imprimir y pégalo en la mesa física.
                             </p>
                         </div>
 
-                        <div className="p-6 bg-white dark:bg-gray-900/30 border border-slate-200 dark:border-gray-900 rounded-3xl hover:border-orange-500/20 hover:shadow-md transition-all hover:-translate-y-1">
-                            <span className="text-2xl">📊 Reportes por Mesero</span>
-                            <h4 className="font-bold mt-3 text-slate-900 dark:text-white">Control de Ventas Analítico</h4>
-                            <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 leading-relaxed">
+                        <div className="group p-6 bg-white dark:bg-gray-900/30 border border-slate-200 dark:border-gray-900 rounded-3xl hover:border-orange-500/20 hover:shadow-lg transition-all hover:-translate-y-1.5">
+                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-blue-500/20 transition-all">
+                                <DollarSign className="w-5 h-5" />
+                            </div>
+                            <h4 className="font-bold text-slate-900 dark:text-white">Control de Ventas Analítico</h4>
+                            <p className="text-xs text-slate-500 dark:text-gray-400 mt-2 leading-relaxed">
                                 Visualiza estadísticas de ventas totales clasificadas por mesero para ver el rendimiento individual y la facturación de cada mesa.
                             </p>
+                        </div>
+                    </div>
+                </section>
+            </Reveal>
+
+            {/* Bottom CTA Section */}
+            <Reveal>
+                <section className="max-w-6xl mx-auto px-6 pb-20 pt-4 relative z-10">
+                    <div className="relative bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 rounded-[40px] p-10 sm:p-16 text-center text-white overflow-hidden shadow-2xl shadow-orange-500/20">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
+                        <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+                        <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+                        
+                        <div className="relative space-y-6 max-w-2xl mx-auto">
+                            <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/15 text-white font-extrabold text-[10px] uppercase tracking-widest rounded-full backdrop-blur-sm">
+                                <Sparkles className="w-3.5 h-3.5" />
+                                Empieza hoy, sin compromiso
+                            </span>
+                            <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
+                            ¿Listo para digitalizar tu restaurante?
+                            </h2>
+                            <p className="text-sm text-white/80 max-w-lg mx-auto leading-relaxed">
+                                Únete a los 128+ restaurantes que ya optimizan sus pedidos con bocado!. 
+                                Registro gratuito, sin tarjeta de crédito, sin contratos.
+                            </p>
+                            <div className="flex flex-wrap justify-center gap-3 pt-2">
+                                <Link
+                                    href="/register"
+                                    className="py-3.5 px-8 bg-white text-orange-600 hover:bg-orange-50 font-extrabold rounded-2xl shadow-lg shadow-black/10 transition-all text-sm hover:scale-105 active:scale-95"
+                                >
+                                    Crear mi Restaurante Gratis
+                                </Link>
+                                <Link
+                                    href={route('demo.selector')}
+                                    className="py-3.5 px-8 bg-white/10 hover:bg-white/20 text-white font-extrabold rounded-2xl transition-all text-sm border border-white/20 hover:scale-105 active:scale-95 flex items-center gap-2"
+                                >
+                                    Ver Demo <ArrowRight className="w-4 h-4" />
+                                </Link>
+                            </div>
+                            <p className="text-[10px] text-white/60 font-bold">⚡ No requiere tarjeta de crédito • Cancela en cualquier momento</p>
                         </div>
                     </div>
                 </section>

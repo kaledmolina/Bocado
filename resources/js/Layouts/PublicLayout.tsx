@@ -265,6 +265,21 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                 )}
             </div>
 
+            {/* Floating Demo FAB - Solo mobile, aparece al scrollear */}
+            {!auth?.user && (
+                <div className={`fixed bottom-6 right-6 z-50 transition-all duration-500 sm:hidden ${
+                    scrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'
+                }`}>
+                    <Link
+                        href={route('demo.selector')}
+                        className="flex items-center gap-2 py-3 px-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold text-xs rounded-2xl shadow-2xl shadow-orange-500/40 hover:shadow-orange-500/60 hover:scale-105 active:scale-95 transition-all"
+                    >
+                        <span className="text-base">⚡</span>
+                        Demo Gratis
+                    </Link>
+                </div>
+            )}
+
             {/* Content Slot */}
             <main className="relative z-10 pt-24">
                 {children}
