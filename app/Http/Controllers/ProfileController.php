@@ -29,6 +29,10 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        if ($request->user()->isDemoUser()) {
+            return Redirect::back()->with('error', 'No puedes modificar el perfil de un usuario de demostración.');
+        }
+
         $request->user()->fill($request->validated());
 
         if ($request->user()->isDirty('email')) {
@@ -45,6 +49,10 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        if ($request->user()->isDemoUser()) {
+            return Redirect::back()->with('error', 'No puedes eliminar un usuario de demostración.');
+        }
+
         $request->validate([
             'password' => ['required', 'current_password'],
         ]);

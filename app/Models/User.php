@@ -95,4 +95,15 @@ class User extends Authenticatable
     {
         return $this->role === 'waiter' || ($this->role === 'admin' && session('view_mode', 'admin') === 'waiter');
     }
+
+    public function isDemoUser()
+    {
+        return in_array($this->email, [
+            'owner@rinconcito.com',
+            'pedro@rinconcito.com',
+            'maria@rinconcito.com',
+            'owner@tacoloco.com',
+            'carlos@tacoloco.com'
+        ]);
+    }
 }

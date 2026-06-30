@@ -177,12 +177,10 @@ export default function AdminLayout({ children, title }: Props) {
                 </main>
             </div>
 
-            {auth?.user && ['owner@rinconcito.com', 'pedro@rinconcito.com', 'maria@rinconcito.com'].includes(auth.user.email) && (
+            {auth?.user?.is_demo_user && (
                 <div className="fixed bottom-6 right-6 z-50 animate-bounce">
                     <Link
-                        href={route('logout')}
-                        method="post"
-                        as="button"
+                        href={route('demo.selector')}
                         className="flex items-center gap-1.5 px-5 py-3 bg-orange-600 hover:bg-orange-700 text-white text-xs font-black rounded-full shadow-2xl shadow-orange-500/20 border border-orange-500/35 transition-all hover:scale-105 active:scale-95 cursor-pointer"
                     >
                         <span>🔄 Cambiar Rol Demo</span>

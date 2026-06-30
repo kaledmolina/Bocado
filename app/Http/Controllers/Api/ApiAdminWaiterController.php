@@ -41,6 +41,7 @@ class ApiAdminWaiterController extends Controller
         $availableWaiters = User::whereNull('restaurant_id')
             ->where('role', 'waiter')
             ->where('is_visible_in_talents', true)
+            ->whereNotIn('email', ['owner@rinconcito.com', 'pedro@rinconcito.com', 'maria@rinconcito.com', 'owner@tacoloco.com', 'carlos@tacoloco.com'])
             ->with(['ratings.restaurant', 'applications' => function($q) use ($user) {
                 $q->where('restaurant_id', $user->restaurant_id);
             }])
@@ -93,6 +94,10 @@ class ApiAdminWaiterController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
+        if ($waiter->isDemoUser()) {
+            return response()->json(['status' => 'error', 'message' => 'No puedes modificar los datos de un mesero de demostración.'], 403);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:users,email,' . $waiter->id,
@@ -124,6 +129,10 @@ class ApiAdminWaiterController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
+        if ($waiter->isDemoUser()) {
+            return response()->json(['status' => 'error', 'message' => 'No puedes eliminar a un mesero de demostración.'], 403);
+        }
+
         $waiter->delete();
 
         return response()->json([
@@ -137,6 +146,10 @@ class ApiAdminWaiterController extends Controller
         $user = Auth::user();
         if (!$user->isAdmin() || $waiter->restaurant_id !== $user->restaurant_id || !$waiter->isWaiter()) {
             return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if ($waiter->isDemoUser()) {
+            return response()->json(['status' => 'error', 'message' => 'No puedes desactivar a un mesero de demostración.'], 403);
         }
 
         $waiter->update([
@@ -228,6 +241,10 @@ class ApiAdminWaiterController extends Controller
         $user = Auth::user();
         if (!$user->isAdmin() || $waiter->restaurant_id !== $user->restaurant_id || !$waiter->isWaiter()) {
             return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if ($waiter->isDemoUser()) {
+            return response()->json(['status' => 'error', 'message' => 'No puedes despedir o desvincular a un mesero de demostración.'], 403);
         }
 
         $validated = $request->validate([

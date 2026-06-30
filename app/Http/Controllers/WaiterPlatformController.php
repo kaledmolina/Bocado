@@ -64,6 +64,10 @@ class WaiterPlatformController extends Controller
             abort(403);
         }
 
+        if ($user->isDemoUser()) {
+            return redirect()->back()->with('error', 'Como usuario de demostración, no puedes desvincularte del restaurante.');
+        }
+
         if ($user->role === 'admin') {
             return redirect()->back()->with('error', 'Como administrador no puedes desvincularte de tu propio restaurante.');
         }
@@ -160,6 +164,10 @@ class WaiterPlatformController extends Controller
         $user = Auth::user();
         if (!$user->isAdmin() || $waiter->restaurant_id !== $user->restaurant_id || !$waiter->isWaiter()) {
             abort(403);
+        }
+
+        if ($waiter->isDemoUser()) {
+            return redirect()->back()->with('error', 'No puedes despedir o desvincular a un mesero de demostración.');
         }
 
         $validated = $request->validate([
@@ -267,6 +275,10 @@ class WaiterPlatformController extends Controller
         $user = Auth::user();
         if (!$user->isWaiter()) {
             abort(403);
+        }
+
+        if ($user->isDemoUser()) {
+            return redirect()->back()->with('error', 'No puedes modificar el perfil de un usuario de demostración.');
         }
 
         $validated = $request->validate([

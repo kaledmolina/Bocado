@@ -40,6 +40,7 @@ class WaiterController extends Controller
         $availableWaiters = User::whereNull('restaurant_id')
             ->where('role', 'waiter')
             ->where('is_visible_in_talents', true)
+            ->whereNotIn('email', ['owner@rinconcito.com', 'pedro@rinconcito.com', 'maria@rinconcito.com', 'owner@tacoloco.com', 'carlos@tacoloco.com'])
             ->with(['ratings.restaurant', 'applications' => function($q) use ($user) {
                 $q->where('restaurant_id', $user->restaurant_id);
             }])
@@ -85,6 +86,10 @@ class WaiterController extends Controller
             abort(403);
         }
 
+        if ($waiter->isDemoUser()) {
+            return redirect()->back()->with('error', 'No puedes modificar los datos de un mesero de demostración.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:users,email,' . $waiter->id,
@@ -110,6 +115,10 @@ class WaiterController extends Controller
         $user = Auth::user();
         if (!$user->isAdmin() || $waiter->restaurant_id !== $user->restaurant_id || !$waiter->isWaiter()) {
             abort(403);
+        }
+
+        if ($waiter->isDemoUser()) {
+            return redirect()->back()->with('error', 'No puedes eliminar a un mesero de demostración.');
         }
 
         $waiter->delete();
@@ -169,6 +178,10 @@ class WaiterController extends Controller
         $user = Auth::user();
         if (!$user->isAdmin() || $waiter->restaurant_id !== $user->restaurant_id || !$waiter->isWaiter()) {
             abort(403);
+        }
+
+        if ($waiter->isDemoUser()) {
+            return redirect()->back()->with('error', 'No puedes desactivar a un mesero de demostración.');
         }
 
         $waiter->update([

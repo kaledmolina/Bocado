@@ -36,6 +36,7 @@ class HandleInertiaRequests extends Middleware
                     'restaurant' => $request->user()->restaurant,
                     'view_mode' => session('view_mode', 'admin'),
                     'actual_role' => $request->user()->getRawOriginal('role') ?? $request->user()->role,
+                    'is_demo_user' => method_exists($request->user(), 'isDemoUser') ? $request->user()->isDemoUser() : false,
                 ]) : null,
             ],
             'flash' => [
