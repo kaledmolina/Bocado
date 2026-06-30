@@ -684,7 +684,7 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
                                                             </p>
                                                         )}
                                                     </div>
-                                                    {isPinVerified && !isLockedOut && (
+                                                    {isPinVerified && !isLockedOut && table.is_active_for_order && (
                                                         <div className="flex items-center gap-2 mt-3 justify-end">
                                                             {cart.find(item => item.product_id === product.id) ? (
                                                                 <>
@@ -849,7 +849,7 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
             )}
 
             {/* Cart Floating Button */}
-            {cart.length > 0 && !isLockedOut && (
+            {cart.length > 0 && !isLockedOut && table.is_active_for_order && (
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-md bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-[24px] p-4 shadow-xl shadow-orange-650/30 border border-orange-500/20 flex items-center justify-between transition-all hover:scale-[1.01] animate-in slide-in-from-bottom-5 duration-300">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg relative">
