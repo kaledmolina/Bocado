@@ -256,7 +256,7 @@ class OrderController extends Controller
     /**
      * Release table without payment (cancel pending order).
      */
-    public function releaseTable(Illuminate\Http\Request $request, Table $table)
+    public function releaseTable(Request $request, Table $table)
     {
         $user = Auth::user();
         if ($table->restaurant_id !== $user->restaurant_id) {
