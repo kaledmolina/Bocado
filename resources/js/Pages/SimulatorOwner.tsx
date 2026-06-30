@@ -661,7 +661,7 @@ export default function SimulatorOwner({ dbRestaurant }: Props) {
                     </div>
 
                     <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-gray-800 rounded-3xl shadow-sm flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-650 flex items-center justify-center font-bold text-sm">⭐</div>
+                        <div className="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-600 flex items-center justify-center font-bold text-sm">⭐</div>
                         <div>
                             <span className="text-[10px] text-slate-400 font-bold block uppercase">Ticket Promedio</span>
                             <span className="text-base font-black text-slate-800 dark:text-white">
