@@ -136,7 +136,7 @@ export default function Login({
                 <h3 className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-2.5 text-center">
                     ⚡ Acceso Rápido Demo (Sin Registro)
                 </h3>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <a
                         href="/demo-login/owner"
                         className="py-2.5 px-3 bg-white dark:bg-gray-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-gray-750 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400 text-[11px] font-bold rounded-xl transition-all border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm text-center"
@@ -148,6 +148,12 @@ export default function Login({
                         className="py-2.5 px-3 bg-white dark:bg-gray-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-gray-750 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400 text-[11px] font-bold rounded-xl transition-all border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm text-center"
                     >
                         🧑‍🍳 Mesero Demo
+                    </a>
+                    <a
+                        href="/demo-login/client"
+                        className="py-2.5 px-3 bg-white dark:bg-gray-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 text-gray-750 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400 text-[11px] font-bold rounded-xl transition-all border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm text-center"
+                    >
+                        📱 Cliente Demo
                     </a>
                 </div>
             </div>
