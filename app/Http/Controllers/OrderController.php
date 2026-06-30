@@ -71,15 +71,15 @@ class OrderController extends Controller
             ->where('is_available', true)
             ->get();
 
-        $activeOrder = Order::where('table_id', $table->id)
+        $activeOrders = Order::where('table_id', $table->id)
             ->where('status', 'pending')
             ->with('items.product')
-            ->first();
+            ->get();
 
         return Inertia::render('Waiter/OrderSheet', [
             'table' => $table,
             'products' => $products,
-            'activeOrder' => $activeOrder,
+            'activeOrders' => $activeOrders,
             'restaurant' => $user->restaurant,
         ]);
     }
@@ -95,28 +95,23 @@ class OrderController extends Controller
         }
 
         $request->validate([
+            'customer_name' => 'required|string|max:255',
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.notes' => 'nullable|string|max:255',
+            'request_id' => 'nullable|string', // If it's approving a specific request
         ]);
 
         DB::transaction(function () use ($request, $table, $user) {
-            // Find or create active order
-            $order = Order::firstOrCreate(
-                [
-                    'table_id' => $table->id,
-                    'status' => 'pending',
-                ],
-                [
-                    'restaurant_id' => $user->restaurant_id,
-                    'waiter_id' => $user->id,
-                    'total_amount' => 0.00,
-                ]
-            );
-
-            // Delete old items and add new ones
-            $order->items()->delete();
+            $order = Order::create([
+                'table_id' => $table->id,
+                'restaurant_id' => $user->restaurant_id,
+                'waiter_id' => $user->id,
+                'customer_name' => $request->customer_name,
+                'status' => 'pending',
+                'total_amount' => 0.00,
+            ]);
 
             $total = 0.00;
             foreach ($request->items as $itemData) {
@@ -141,9 +136,19 @@ class OrderController extends Controller
             $table->update([
                 'status' => 'occupied',
             ]);
+
+            // Remove the specific request from cart_data if it exists
+            if ($request->filled('request_id')) {
+                $currentCart = is_array($table->cart_data) ? $table->cart_data : [];
+                $currentCart = array_values(array_filter($currentCart, function ($req) use ($request) {
+                    return isset($req['id']) && $req['id'] !== $request->request_id;
+                }));
+                
+                $table->update(['cart_data' => count($currentCart) > 0 ? $currentCart : null]);
+            }
         });
 
-        return redirect()->route('waiter.dashboard')->with('success', 'Pedido guardado exitosamente.');
+        return redirect()->back()->with('success', 'Pedido guardado exitosamente.');
     }
 
     /**
@@ -177,7 +182,6 @@ class OrderController extends Controller
             abort(403, 'Los meseros no tienen autorización para cobrar cuentas.');
         }
 
-        // Check if there is an active cash session
         $activeSession = \App\Models\CashSession::where('restaurant_id', $table->restaurant_id)
             ->whereNull('closed_at')
             ->exists();
@@ -186,26 +190,32 @@ class OrderController extends Controller
             return redirect()->back()->with('error', '⚠️ No se puede procesar el pago: la caja registradora está cerrada. Por favor abre la caja antes de cobrar.');
         }
 
-        $order = Order::where('table_id', $table->id)
+        $orders = Order::where('table_id', $table->id)
             ->where('status', 'pending')
-            ->first();
+            ->get();
+            
+        $totalTableAmount = $orders->sum('total_amount');
 
         $receivedAmount = $request->input('received_amount');
         $changeAmount = $request->input('change_amount');
 
-        if ($receivedAmount !== null && $order) {
-            if ($receivedAmount < $order->total_amount) {
+        if ($receivedAmount !== null && $orders->count() > 0) {
+            if ($receivedAmount < $totalTableAmount) {
                 return redirect()->back()->with('error', '⚠️ El monto entregado es menor que el total de la cuenta.');
             }
         }
 
-        DB::transaction(function () use ($table, $order, $receivedAmount, $changeAmount) {
-            if ($order) {
-                $order->update([
-                    'status' => 'paid',
-                    'received_amount' => $receivedAmount,
-                    'change_amount' => $changeAmount,
-                ]);
+        DB::transaction(function () use ($table, $orders, $receivedAmount, $changeAmount, $totalTableAmount) {
+            if ($orders->count() > 0) {
+                foreach ($orders as $idx => $order) {
+                    $order->update([
+                        'status' => 'paid',
+                        // Assign received amount and change only to the first order to avoid duplication in cash reports, or spread it?
+                        // Usually it's better to assign it to the first order of the batch.
+                        'received_amount' => $idx === 0 ? $receivedAmount : null,
+                        'change_amount' => $idx === 0 ? $changeAmount : null,
+                    ]);
+                }
             }
 
             $table->update([
@@ -221,8 +231,8 @@ class OrderController extends Controller
                 'user_id' => \Illuminate\Support\Facades\Auth::id(),
                 'action' => 'paid',
                 'details' => [
-                    'order_id' => $order ? $order->id : null,
-                    'total_amount' => $order ? $order->total_amount : 0,
+                    'order_ids' => $orders->pluck('id'),
+                    'total_amount' => $totalTableAmount,
                     'received_amount' => $receivedAmount,
                 ]
             ]);
@@ -242,11 +252,11 @@ class OrderController extends Controller
         }
 
         DB::transaction(function () use ($table) {
-            $order = Order::where('table_id', $table->id)
+            $orders = Order::where('table_id', $table->id)
                 ->where('status', 'pending')
-                ->first();
+                ->get();
 
-            if ($order) {
+            foreach ($orders as $order) {
                 $order->update([
                     'status' => 'cancelled',
                 ]);
@@ -265,7 +275,7 @@ class OrderController extends Controller
                 'user_id' => \Illuminate\Support\Facades\Auth::id(),
                 'action' => 'released',
                 'details' => [
-                    'cancelled_order_id' => $order ? $order->id : null,
+                    'cancelled_order_ids' => $orders->pluck('id'),
                 ]
             ]);
         });
@@ -300,38 +310,43 @@ class OrderController extends Controller
                 continue;
             }
 
-            $totalAmount = 0;
-            $items = [];
-            foreach ($cartData as $idx => $cartItem) {
-                $price = floatval($cartItem['price'] ?? 0);
-                $qty = intval($cartItem['quantity'] ?? 1);
-                $totalAmount += $price * $qty;
+            foreach ($cartData as $requestItem) {
+                if (!isset($requestItem['id']) || !isset($requestItem['items'])) continue;
 
-                $items[] = [
-                    'id' => -$idx - 1, // virtual id
-                    'quantity' => $qty,
-                    'price' => $price,
-                    'notes' => $cartItem['notes'] ?? '',
-                    'product' => [
-                        'name' => $cartItem['name'] ?? 'Producto'
-                    ]
-                ];
+                $totalAmount = 0;
+                $items = [];
+                foreach ($requestItem['items'] as $idx => $item) {
+                    $price = floatval($item['price'] ?? 0);
+                    $qty = intval($item['quantity'] ?? 1);
+                    $totalAmount += $price * $qty;
+
+                    $items[] = [
+                        'id' => -$idx - 1,
+                        'quantity' => $qty,
+                        'price' => $price,
+                        'notes' => $item['notes'] ?? '',
+                        'product' => [
+                            'name' => $item['name'] ?? 'Producto'
+                        ]
+                    ];
+                }
+
+                $virtualOrders->push([
+                    'id' => "cart-{$requestItem['id']}",
+                    'table_id' => $table->id,
+                    'waiter_id' => null,
+                    'customer_name' => $requestItem['customer_name'] ?? 'Cliente',
+                    'status' => 'pending_approval',
+                    'total_amount' => $totalAmount,
+                    'created_at' => $requestItem['created_at'] ?? $table->updated_at->toIso8601String(),
+                    'table' => [
+                        'number' => $table->number,
+                        'qr_code_token' => $table->qr_code_token
+                    ],
+                    'waiter' => null,
+                    'items' => $items
+                ]);
             }
-
-            $virtualOrders->push([
-                'id' => "cart-{$table->id}",
-                'table_id' => $table->id,
-                'waiter_id' => null,
-                'status' => 'pending_approval',
-                'total_amount' => $totalAmount,
-                'created_at' => $table->updated_at->toIso8601String(),
-                'table' => [
-                    'number' => $table->number,
-                    'qr_code_token' => $table->qr_code_token
-                ],
-                'waiter' => null,
-                'items' => $items
-            ]);
         }
 
         $allOrders = $virtualOrders->merge($orders);
@@ -407,8 +422,23 @@ class OrderController extends Controller
                 return back()->withErrors(['security' => 'Ningún producto seleccionado es válido.']);
             }
 
+            $currentCart = is_array($table->cart_data) ? $table->cart_data : [];
+            // If the old format exists (array of items without 'id'), wrap it. We can just check if first item has 'product_id' directly at root.
+            if (count($currentCart) > 0 && isset($currentCart[0]['product_id'])) {
+                $currentCart = []; // Just clear old legacy carts to avoid issues
+            }
+
+            $customerName = $request->input('customer_name', 'Cliente');
+
+            $currentCart[] = [
+                'id' => uniqid('req_'),
+                'customer_name' => $customerName,
+                'items' => $finalItems,
+                'created_at' => now()->toIso8601String()
+            ];
+
             $table->update([
-                'cart_data' => $finalItems,
+                'cart_data' => $currentCart,
                 'status' => 'occupied',
                 'pin_requested' => false,
             ]);
@@ -422,8 +452,17 @@ class OrderController extends Controller
         }
 
         // Action C: Default call waiter (No PIN required)
-        $table->update([
-            'cart_data' => [
+        $currentCart = is_array($table->cart_data) ? $table->cart_data : [];
+        if (count($currentCart) > 0 && isset($currentCart[0]['product_id'])) {
+            $currentCart = []; 
+        }
+
+        $customerName = $request->input('customer_name', 'Mesa');
+
+        $currentCart[] = [
+            'id' => uniqid('req_'),
+            'customer_name' => $customerName,
+            'items' => [
                 [
                     'product_id' => 0,
                     'name' => 'Llamado al mesero 🛎️',
@@ -432,6 +471,11 @@ class OrderController extends Controller
                     'notes' => 'El cliente solicita atención en la mesa.'
                 ]
             ],
+            'created_at' => now()->toIso8601String()
+        ];
+
+        $table->update([
+            'cart_data' => $currentCart,
             'status' => 'occupied',
             'pin_requested' => false,
         ]);

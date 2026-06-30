@@ -9,7 +9,16 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['restaurant_id', 'table_id', 'waiter_id', 'status', 'total_amount', 'received_amount', 'change_amount'];
+    protected $fillable = [
+        'restaurant_id',
+        'waiter_id',
+        'customer_name',
+        'table_id',
+        'status',
+        'total_amount',
+        'received_amount',
+        'change_amount',
+    ];
 
     protected $casts = [
         'total_amount' => 'float',

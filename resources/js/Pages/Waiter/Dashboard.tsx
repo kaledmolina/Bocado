@@ -13,11 +13,16 @@ interface Table {
     temp_pin?: string | null;
     pin_requested?: boolean;
     cart_data?: Array<{
-        product_id: number;
-        name: string;
-        price: number;
-        quantity: number;
-        notes?: string;
+        id: string;
+        customer_name: string;
+        created_at: string;
+        items: Array<{
+            product_id: number;
+            name: string;
+            price: number;
+            quantity: number;
+            notes?: string;
+        }>;
     }> | null;
     active_order?: {
         id: number;
@@ -1114,9 +1119,17 @@ export default function Dashboard({ tables = [], waiterName, restaurant, hiringR
                                                          </div>
                                                      )}
                                                     {hasClientRequest ? (
-                                                        <div className="text-[11px] text-blue-600 dark:text-blue-400">
-                                                            <span className="font-extrabold">Pendiente: </span>
-                                                            {table.cart_data!.map((item, idx) => `${item.quantity}x ${item.name}`).join(', ')}
+                                                        <div className="text-[11px] text-blue-600 dark:text-blue-400 max-h-24 overflow-y-auto pr-1 space-y-1.5 custom-scrollbar">
+                                                            {table.cart_data!.map((req, i) => (
+                                                                <div key={req.id || i} className="bg-blue-50/50 dark:bg-blue-900/20 p-1.5 rounded-lg border border-blue-100 dark:border-blue-800/50">
+                                                                    <span className="font-extrabold text-blue-700 dark:text-blue-300 block mb-0.5">👤 {req.customer_name}:</span>
+                                                                    <span className="text-blue-600/90 dark:text-blue-400/90 leading-tight block">
+                                                                        {req.items && req.items.length > 0 
+                                                                            ? req.items.map(item => `${item.quantity}x ${item.name}`).join(', ')
+                                                                            : 'Llamado al mesero'}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
                                                         </div>
                                                     ) : (
                                                         <p className="text-[11px] text-gray-400 italic">Sin pedidos nuevos</p>

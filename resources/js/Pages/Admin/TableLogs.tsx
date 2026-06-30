@@ -69,7 +69,7 @@ export default function TableLogs({ logs }: Props) {
     };
 
     return (
-        <AdminLayout>
+        <AdminLayout title="Historial de Mesas">
             <Head title="Historial de Mesas - bocado!" />
 
             <div className="mb-8">

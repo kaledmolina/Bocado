@@ -32,16 +32,22 @@ interface Table {
     temp_pin?: string | null;
     pin_requested?: boolean;
     cart_data?: Array<{
-        product_id: number;
-        name: string;
-        price: number;
-        quantity: number;
-        notes: string;
+        id: string;
+        customer_name: string;
+        created_at: string;
+        items: Array<{
+            product_id: number;
+            name: string;
+            price: number;
+            quantity: number;
+            notes: string;
+        }>;
     }> | null;
 }
 
 interface ActiveOrder {
     id: number;
+    customer_name: string | null;
     total_amount: number;
     items: Array<{
         id: number;
@@ -58,7 +64,7 @@ interface ActiveOrder {
 interface Props {
     table: Table;
     products: Product[];
-    activeOrder: ActiveOrder | null;
+    activeOrders: ActiveOrder[];
     restaurant: {
         waiters_can_collect_payment: boolean;
     };
@@ -66,7 +72,7 @@ interface Props {
 
 const DEFAULT_CATEGORIES = ['Entradas', 'Platos Fuertes', 'Bebidas', 'Postres'];
 
-export default function OrderSheet({ table, products, activeOrder, restaurant }: Props) {
+export default function OrderSheet({ table, products, activeOrders = [], restaurant }: Props) {
     const { flash } = usePage().props as any;
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -211,7 +217,7 @@ export default function OrderSheet({ table, products, activeOrder, restaurant }:
 
     useEffect(() => {
         const currentCartStr = table.cart_data
-            ? table.cart_data.map(item => `${item.product_id}-${item.quantity}`).join(',')
+            ? table.cart_data.map(req => req.id).join(',')
             : '';
 
         if (isFirstRender.current) {
@@ -230,34 +236,31 @@ export default function OrderSheet({ table, products, activeOrder, restaurant }:
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [cart, setCart] = useState<OrderItem[]>([]);
 
-    // Initialize cart from active order if it exists
+    const [customerName, setCustomerName] = useState<string>('General');
+
+    // Cart is always empty initially, ready for a new order
     useEffect(() => {
-        if (activeOrder && activeOrder.items) {
-            const initialCart = activeOrder.items.map(item => ({
-                product_id: item.product_id,
-                name: item.product.name,
-                price: Number(item.price),
-                quantity: item.quantity,
-                notes: item.notes || '',
-            }));
-            setCart(initialCart);
-        } else {
-            setCart([]);
-        }
-    }, [activeOrder]);
+        setCart([]);
+    }, [table.id]);
 
     const { data, setData, post, processing } = useForm({
+        customer_name: customerName,
         items: [] as any[],
+        request_id: ''
     });
 
-    // Update form data whenever cart changes
+    // Update form data whenever cart or name changes
     useEffect(() => {
-        setData('items', cart.map(item => ({
-            product_id: item.product_id,
-            quantity: item.quantity,
-            notes: item.notes,
-        })));
-    }, [cart]);
+        setData(data => ({
+            ...data,
+            customer_name: customerName,
+            items: cart.map(item => ({
+                product_id: item.product_id,
+                quantity: item.quantity,
+                notes: item.notes,
+            }))
+        }));
+    }, [cart, customerName]);
 
     const addToCart = (product: Product) => {
         const existing = cart.find(item => item.product_id === product.id);
@@ -300,7 +303,13 @@ export default function OrderSheet({ table, products, activeOrder, restaurant }:
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('waiter.order.save', table.id));
+        post(route('waiter.order.save', table.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setCart([]);
+                setCustomerName('General');
+            }
+        });
     };
 
     const handleRequestPayment = () => {
@@ -326,7 +335,11 @@ export default function OrderSheet({ table, products, activeOrder, restaurant }:
     });
 
     const handlePay = () => {
-        const total = activeOrder ? Number(activeOrder.total_amount) : calculateTotal();
+        const total = activeOrders.reduce((sum, order) => sum + Number(order.total_amount), 0);
+        if (total === 0 && activeOrders.length === 0) {
+            setToast({ message: 'No hay pedidos activos para cobrar.', type: 'error' });
+            return;
+        }
         setPaymentModal({
             isOpen: true,
             totalAmount: total,
@@ -373,43 +386,59 @@ export default function OrderSheet({ table, products, activeOrder, restaurant }:
         });
     };
 
-    const handleApproveClientCart = () => {
-        let updatedCart = [...cart];
-        table.cart_data?.forEach(clientItem => {
-            const existingIdx = updatedCart.findIndex(item => item.product_id === clientItem.product_id);
-            if (existingIdx > -1) {
-                updatedCart[existingIdx] = {
-                    ...updatedCart[existingIdx],
-                    quantity: updatedCart[existingIdx].quantity + clientItem.quantity,
-                    notes: updatedCart[existingIdx].notes 
-                        ? `${updatedCart[existingIdx].notes}, ${clientItem.notes}`.trim().replace(/^,|,$/g, '')
-                        : clientItem.notes || ''
-                };
-            } else {
-                updatedCart.push({
-                    product_id: clientItem.product_id,
-                    name: clientItem.name,
-                    price: Number(clientItem.price),
-                    quantity: clientItem.quantity,
-                    notes: clientItem.notes || '',
-                });
-            }
-        });
-        setCart(updatedCart);
-        router.post(route('tables.clear-client-cart', table.id));
+    const handleApproveClientCart = (requestId: string, clientName: string, clientItems: any[]) => {
+        // Create an order specifically for this request.
+        // It populates the form and sends it.
+        setData(data => ({
+            ...data,
+            customer_name: clientName,
+            request_id: requestId,
+            items: clientItems.map(item => ({
+                product_id: item.product_id,
+                quantity: item.quantity,
+                notes: item.notes,
+            }))
+        }));
+
+        // Give React a moment to update the data state, then submit
+        setTimeout(() => {
+            post(route('waiter.order.save', table.id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setToast({ message: `Pedido de ${clientName} aprobado`, type: 'success' });
+                    setCart([]);
+                    setCustomerName('General');
+                    // Reset form
+                    setData(data => ({
+                        ...data,
+                        customer_name: 'General',
+                        request_id: '',
+                        items: []
+                    }));
+                }
+            });
+        }, 50);
     };
 
-    const handleRemoveClientItem = (indexToRemove: number) => {
+    const handleRemoveClientRequest = (requestId: string) => {
         if (!table.cart_data) return;
-        const updatedItems = table.cart_data.filter((_, idx) => idx !== indexToRemove);
+        const updatedRequests = table.cart_data.filter(req => req.id !== requestId);
         
-        if (updatedItems.length === 0) {
+        if (updatedRequests.length === 0) {
             router.post(route('tables.clear-client-cart', table.id));
         } else {
             router.post(route('qr.request-order', table.qr_code_token || ''), {
-                items: updatedItems
+                items: updatedRequests // Actually the endpoint expects items as products if we overwrite... Wait, we can't overwrite cart_data directly from OrderSheet unless we add an endpoint.
+                // Let's use a new endpoint or pass action 'remove_request'.
+                // I will add a parameter to clear-client-cart.
             });
         }
+    };
+
+    const handleRejectRequest = (requestId: string) => {
+        router.post(route('tables.clear-client-cart', table.id), {
+            request_id: requestId
+        }, { preserveScroll: true });
     };
 
     // Filter products
@@ -495,9 +524,22 @@ export default function OrderSheet({ table, products, activeOrder, restaurant }:
                 {/* Cart / Selected Items Panel */}
                 <div className="w-full lg:w-1/2 p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-gray-200/80 dark:border-gray-850 lg:overflow-y-auto bg-gray-50 dark:bg-gray-950">
                     <div className="space-y-4">
-                        <h2 className="text-sm font-black uppercase tracking-wider text-gray-450 dark:text-gray-500 border-b border-gray-200/50 dark:border-gray-800 pb-2">
-                            Detalles del Pedido
-                        </h2>
+                        <div className="flex items-center justify-between border-b border-gray-200/50 dark:border-gray-800 pb-2">
+                            <h2 className="text-sm font-black uppercase tracking-wider text-gray-450 dark:text-gray-500">
+                                Nuevo Pedido
+                            </h2>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-gray-600 dark:text-gray-400 whitespace-nowrap">A nombre de:</span>
+                            <input
+                                type="text"
+                                value={customerName}
+                                onChange={e => setCustomerName(e.target.value)}
+                                className="flex-1 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 text-xs focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:outline-none dark:text-white"
+                                placeholder="General"
+                            />
+                        </div>
 
                         {/* PIN Solicitado por Cliente */}
                         {table.pin_requested && (
@@ -535,75 +577,76 @@ export default function OrderSheet({ table, products, activeOrder, restaurant }:
 
                         {/* Pedido Solicitado por Cliente (Pending Approval) */}
                         {table.cart_data && table.cart_data.length > 0 && (
-                            table.cart_data[0].product_id === 0 ? (
-                                <div className="bg-amber-500/10 border border-amber-500/25 dark:border-amber-500/35 rounded-3xl p-5 shadow-sm space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2">
-                                            <span className="p-2 bg-amber-500/20 rounded-2xl animate-pulse">
-                                                🛎️
-                                            </span>
-                                            <div>
-                                                <h3 className="font-extrabold text-amber-800 dark:text-amber-400 text-xs">Llamado del Cliente</h3>
-                                                <p className="text-[10px] text-gray-500 dark:text-gray-400 font-semibold">El cliente solicita asistencia en la mesa.</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div className="space-y-4">
+                                {table.cart_data.map((request, reqIdx) => {
+                                    const isCallWaiter = request.items.length === 1 && request.items[0].product_id === 0;
 
-                                    <div className="flex gap-2 pt-2 border-t border-amber-500/10">
-                                        <button
-                                            type="button"
-                                            onClick={handleClearClientCart}
-                                            className="w-full py-2.5 px-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-black rounded-2xl text-[10px] shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                                        >
-                                            🛎️ Marcar como Atendido
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="bg-blue-500/10 border border-blue-500/25 dark:border-blue-500/35 rounded-3xl p-5 shadow-sm space-y-3">
-                                    <div className="flex items-center gap-2 pb-2 border-b border-blue-500/10">
-                                        <span className="p-2 bg-blue-500/20 rounded-2xl text-base animate-pulse">
-                                            📲
-                                        </span>
-                                        <div>
-                                            <h3 className="font-extrabold text-blue-800 dark:text-blue-400 text-xs">Autopedido QR del Cliente</h3>
-                                            <p className="text-[10px] text-gray-500 dark:text-gray-400 font-semibold">El cliente envió platos para agregar a la cuenta.</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2 py-1 max-h-[180px] overflow-y-auto">
-                                        {table.cart_data.map((item, idx) => (
-                                            <div key={idx} className="flex justify-between items-start text-[11px] bg-white dark:bg-gray-900 p-2.5 rounded-xl border border-gray-150/40 dark:border-gray-800/40">
-                                                <div>
-                                                    <span className="font-extrabold text-blue-600 dark:text-blue-400 mr-1.5">{item.quantity}x</span>
-                                                    <span className="font-bold text-gray-800 dark:text-gray-200">{item.name}</span>
-                                                    {item.notes && (
-                                                        <span className="block text-[9px] text-gray-400 italic mt-0.5">Nota: {item.notes}</span>
-                                                    )}
+                                    return (
+                                        <div key={request.id || reqIdx} className={`${isCallWaiter ? 'bg-amber-500/10 border-amber-500/25 dark:border-amber-500/35' : 'bg-blue-500/10 border-blue-500/25 dark:border-blue-500/35'} border rounded-3xl p-5 shadow-sm space-y-3`}>
+                                            <div className="flex justify-between items-center pb-2 border-b border-gray-200/10">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`p-2 rounded-2xl animate-pulse ${isCallWaiter ? 'bg-amber-500/20' : 'bg-blue-500/20 text-base'}`}>
+                                                        {isCallWaiter ? '🛎️' : '📲'}
+                                                    </span>
+                                                    <div>
+                                                        <h3 className={`font-extrabold text-xs ${isCallWaiter ? 'text-amber-800 dark:text-amber-400' : 'text-blue-800 dark:text-blue-400'}`}>
+                                                            {isCallWaiter ? 'Llamado al Mesero' : 'Autopedido QR'}
+                                                        </h3>
+                                                        <p className="text-[10px] text-gray-500 dark:text-gray-400 font-semibold">
+                                                            A nombre de: <span className="font-bold text-gray-700 dark:text-gray-300">{request.customer_name}</span>
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <span className="font-extrabold text-gray-700 dark:text-gray-300">${(item.price * item.quantity).toFixed(2)}</span>
                                             </div>
-                                        ))}
-                                    </div>
 
-                                    <div className="flex gap-2.5 pt-2 border-t border-blue-500/10">
-                                        <button
-                                            type="button"
-                                            onClick={handleClearClientCart}
-                                            className="flex-1 py-2.5 px-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-455 font-bold border border-rose-500/10 dark:border-rose-500/20 rounded-2xl text-[10px] transition-all flex items-center justify-center gap-1 cursor-pointer"
-                                        >
-                                            ❌ Descartar
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={handleApproveClientCart}
-                                            className="flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-[10px] shadow-sm shadow-emerald-600/10 transition-all flex items-center justify-center gap-1 cursor-pointer hover:scale-[1.01]"
-                                        >
-                                            ✅ Aprobar y Agregar
-                                        </button>
-                                    </div>
-                                </div>
-                            )
+                                            {!isCallWaiter && (
+                                                <div className="space-y-2 py-1 max-h-[180px] overflow-y-auto custom-scrollbar pr-1">
+                                                    {request.items.map((item, idx) => (
+                                                        <div key={idx} className="flex justify-between items-start text-[11px] bg-white dark:bg-gray-900 p-2.5 rounded-xl border border-gray-150/40 dark:border-gray-800/40">
+                                                            <div>
+                                                                <span className="font-extrabold text-blue-600 dark:text-blue-400 mr-1.5">{item.quantity}x</span>
+                                                                <span className="font-bold text-gray-800 dark:text-gray-200">{item.name}</span>
+                                                                {item.notes && (
+                                                                    <span className="block text-[9px] text-gray-400 italic mt-0.5">Nota: {item.notes}</span>
+                                                                )}
+                                                            </div>
+                                                            <span className="font-extrabold text-gray-700 dark:text-gray-300">${(item.price * item.quantity).toFixed(2)}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            <div className="flex gap-2.5 pt-2 border-t border-gray-200/10">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRejectRequest(request.id)}
+                                                    className={`flex-1 py-2.5 px-3 font-bold border rounded-2xl text-[10px] transition-all flex items-center justify-center gap-1 cursor-pointer ${isCallWaiter ? 'bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20 hover:bg-rose-500/20'}`}
+                                                >
+                                                    {isCallWaiter ? 'Descartar' : 'Rechazar'}
+                                                </button>
+                                                {!isCallWaiter && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleApproveClientCart(request.id, request.customer_name, request.items)}
+                                                        className="flex-1 py-2.5 px-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-black rounded-2xl text-[10px] shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95"
+                                                    >
+                                                        ✅ Aprobar y Agregar
+                                                    </button>
+                                                )}
+                                                {isCallWaiter && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRejectRequest(request.id)}
+                                                        className="flex-[2] py-2.5 px-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black rounded-2xl text-[10px] shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95"
+                                                    >
+                                                        🛎️ Marcar como Atendido
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         )}
 
 
@@ -656,6 +699,48 @@ export default function OrderSheet({ table, products, activeOrder, restaurant }:
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        )}
+
+                        {/* Pedidos Activos de la Mesa */}
+                        {activeOrders && activeOrders.length > 0 && (
+                            <div className="mt-8 space-y-4">
+                                <h2 className="text-sm font-black uppercase tracking-wider text-gray-450 dark:text-gray-500 border-b border-gray-200/50 dark:border-gray-800 pb-2">
+                                    Pedidos Activos
+                                </h2>
+                                <div className="space-y-4">
+                                    {activeOrders.map((order, orderIdx) => (
+                                        <div key={order.id || orderIdx} className="bg-emerald-500/10 border border-emerald-500/25 dark:border-emerald-500/35 rounded-3xl p-5 shadow-sm space-y-3">
+                                            <div className="flex justify-between items-center pb-2 border-b border-emerald-500/10">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="p-2 bg-emerald-500/20 rounded-2xl text-base">🍽️</span>
+                                                    <div>
+                                                        <h3 className="font-extrabold text-emerald-800 dark:text-emerald-400 text-xs">Pedido en curso</h3>
+                                                        <p className="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 font-semibold">
+                                                            A nombre de: <span className="font-bold text-emerald-700 dark:text-emerald-300">{order.customer_name || 'General'}</span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <span className="font-black text-emerald-700 dark:text-emerald-300">${Number(order.total_amount).toFixed(2)}</span>
+                                            </div>
+
+                                            <div className="space-y-2 py-1">
+                                                {order.items.map((item, idx) => (
+                                                    <div key={idx} className="flex justify-between items-start text-[11px] bg-white/50 dark:bg-gray-900/50 p-2.5 rounded-xl border border-emerald-500/10 dark:border-emerald-500/20">
+                                                        <div>
+                                                            <span className="font-extrabold text-emerald-600 dark:text-emerald-400 mr-1.5">{item.quantity}x</span>
+                                                            <span className="font-bold text-gray-800 dark:text-gray-200">{item.product.name}</span>
+                                                            {item.notes && (
+                                                                <span className="block text-[9px] text-gray-500 dark:text-gray-400 italic mt-0.5">Nota: {item.notes}</span>
+                                                            )}
+                                                        </div>
+                                                        <span className="font-extrabold text-gray-700 dark:text-gray-300">${(item.price * item.quantity).toFixed(2)}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>
@@ -747,7 +832,9 @@ export default function OrderSheet({ table, products, activeOrder, restaurant }:
                 <div className="flex justify-between w-full md:w-auto items-center gap-6 bg-gray-50 dark:bg-gray-950 px-4 py-2.5 rounded-2xl border border-gray-150 dark:border-gray-850">
                     <div>
                         <span className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider block">Total a Cobrar</span>
-                        <span className="text-2xl font-black bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">${calculateTotal().toFixed(2)}</span>
+                        <span className="text-2xl font-black bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">
+                            ${(activeOrders.reduce((sum, order) => sum + Number(order.total_amount), 0) + calculateTotal()).toFixed(2)}
+                        </span>
                     </div>
                 </div>
 

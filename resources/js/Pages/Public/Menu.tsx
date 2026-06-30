@@ -205,11 +205,32 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
         });
     };
 
+    const [customerName, setCustomerName] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('customer_name') || '';
+        }
+        return '';
+    });
+    const [showNameModal, setShowNameModal] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined' && customerName) {
+            localStorage.setItem('customer_name', customerName);
+        }
+    }, [customerName]);
+
     const handleSendOrder = () => {
         if (cart.length === 0 || isLockedOut) return;
+        
+        if (!customerName.trim()) {
+            setShowNameModal(true);
+            return;
+        }
+
         setIsSending(true);
         router.post(route('qr.request-order', table.qr_code_token), {
             pin: pinInput,
+            customer_name: customerName,
             items: cart as any
         }, {
             onSuccess: () => {
@@ -967,6 +988,46 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
                     </a>
                 </div>
             )}
+            {showNameModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowNameModal(false)}></div>
+                    <div className="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-2xl border border-gray-100 dark:border-gray-800 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="mb-4">
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white">¿A nombre de quién?</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Por favor ingresa tu nombre para identificar tu pedido en la mesa.</p>
+                        </div>
+                        <input
+                            type="text"
+                            value={customerName}
+                            onChange={(e) => setCustomerName(e.target.value)}
+                            placeholder="Tu nombre..."
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none text-gray-900 dark:text-white font-bold mb-4"
+                            autoFocus
+                        />
+                        <div className="flex gap-2 justify-end">
+                            <button
+                                onClick={() => setShowNameModal(false)}
+                                className="px-4 py-2 text-xs font-bold text-gray-500 hover:text-gray-700"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (customerName.trim()) {
+                                        setShowNameModal(false);
+                                        // The user will have to click Enviar Pedido / Llamar mesero again.
+                                    }
+                                }}
+                                disabled={!customerName.trim()}
+                                className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-black disabled:opacity-50"
+                            >
+                                Continuar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }
