@@ -25,7 +25,7 @@ export default function ConfirmModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
             <div className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-6 text-center animate-in zoom-in-95 duration-150">
                 <div className="space-y-2">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
