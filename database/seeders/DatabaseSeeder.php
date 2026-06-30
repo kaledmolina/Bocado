@@ -127,17 +127,18 @@ class DatabaseSeeder extends Seeder
             'is_available' => true,
         ]);
 
-        // Active Order for Mesa 2 (Occupied)
-        $o2 = Order::create([
+        // Active Order 1 for Mesa 2 (Occupied) - A nombre de Carlos
+        $o2_1 = Order::create([
             'restaurant_id' => $rinconcito->id,
             'table_id' => $t2->id,
             'waiter_id' => $pedro->id,
             'status' => 'pending',
+            'customer_name' => 'Carlos',
             'total_amount' => 18.00,
         ]);
 
         OrderItem::create([
-            'order_id' => $o2->id,
+            'order_id' => $o2_1->id,
             'product_id' => $p_pizza->id,
             'quantity' => 1,
             'price' => 15.00,
@@ -145,18 +146,36 @@ class DatabaseSeeder extends Seeder
         ]);
 
         OrderItem::create([
-            'order_id' => $o2->id,
+            'order_id' => $o2_1->id,
             'product_id' => $p_coca->id,
             'quantity' => 1,
             'price' => 3.00,
         ]);
 
-        // Active Order for Mesa 3 (Payment Pending)
+        // Active Order 2 for Mesa 2 (Occupied) - A nombre de Ana
+        $o2_2 = Order::create([
+            'restaurant_id' => $rinconcito->id,
+            'table_id' => $t2->id,
+            'waiter_id' => $pedro->id,
+            'status' => 'pending',
+            'customer_name' => 'Ana',
+            'total_amount' => 8.00,
+        ]);
+
+        OrderItem::create([
+            'order_id' => $o2_2->id,
+            'product_id' => $p_bruschetta->id,
+            'quantity' => 1,
+            'price' => 8.00,
+        ]);
+
+        // Active Order for Mesa 3 (Payment Pending) - A nombre de Familia Martinez
         $o3 = Order::create([
             'restaurant_id' => $rinconcito->id,
             'table_id' => $t3->id,
             'waiter_id' => $maria->id,
             'status' => 'pending',
+            'customer_name' => 'Familia Martinez',
             'total_amount' => 44.00,
         ]);
 

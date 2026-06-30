@@ -21,11 +21,16 @@ interface Table {
     is_active_for_order?: boolean;
     temp_pin?: string | null;
     cart_data?: Array<{
-        product_id: number;
-        name: string;
-        price: number;
-        quantity: number;
-        notes?: string;
+        id: string;
+        customer_name: string;
+        created_at: string;
+        items: Array<{
+            product_id: number;
+            name: string;
+            price: number;
+            quantity: number;
+            notes?: string;
+        }>;
     }> | null;
     pin_requested?: boolean;
     pin_updated_at?: string | null;
@@ -138,7 +143,7 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
     const [isCartOpen, setIsCartOpen] = useState(false);
 
     // Lockout condition: Table already has pending cart order items awaiting waiter approval
-    const isLockedOut = !!(table.cart_data && table.cart_data.length > 0 && table.cart_data[0].product_id !== 0);
+    const isLockedOut = !!(table.cart_data && table.cart_data.some(req => req.items && req.items.length > 0 && req.items[0].product_id !== 0));
 
     useEffect(() => {
         if (restaurant.security_table_pin) {
@@ -382,6 +387,10 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
 
     const categoryKeys = Object.keys(categories);
 
+    const isWaiterCalled = !!(table.cart_data && table.cart_data.some(req => 
+        req.items && req.items.length > 0 && req.items[0].product_id === 0
+    ));
+
     const handleCallWaiter = () => {
         setIsSending(true);
         router.post(route('qr.request-order', table.qr_code_token), {
@@ -571,10 +580,10 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
 
                                 <button
                                     onClick={handleCallWaiter}
-                                    disabled={isSending || !!(table.cart_data && table.cart_data.length > 0 && table.cart_data[0].product_id === 0)}
+                                    disabled={isSending || isWaiterCalled}
                                     className="w-full py-3 px-5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-black rounded-2xl text-xs shadow-md shadow-orange-500/15 hover:shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
                                 >
-                                    🛎️ {!!(table.cart_data && table.cart_data.length > 0 && table.cart_data[0].product_id === 0) ? '¡Mesero Solicitado!' : 'Llamar al Mesero'}
+                                    🛎️ {isWaiterCalled ? '¡Mesero Solicitado!' : 'Llamar al Mesero'}
                                 </button>
                             </div>
                         )}
@@ -621,31 +630,41 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
                     )}
 
                     {/* Pending Client Order (Sent, awaiting waiter approval) */}
-                    {table.cart_data && table.cart_data.length > 0 && table.cart_data[0].product_id !== 0 && (
+                    {table.cart_data && table.cart_data.some(req => req.items[0].product_id !== 0) && (
                         <div className="bg-amber-500/10 border border-amber-500/20 rounded-3xl p-5 shadow-sm space-y-3">
                             <div className="flex items-center gap-2">
                                 <span className="text-xl">⏳</span>
                                 <div>
                                     <h3 className="font-extrabold text-gray-900 dark:text-white text-sm">Pedido por Aprobar</h3>
-                                    <p className="text-[10px] text-gray-500 dark:text-gray-400">El mesero está confirmando tu pedido</p>
+                                    <p className="text-[10px] text-gray-500 dark:text-gray-400">El mesero está confirmando los pedidos de la mesa</p>
                                 </div>
                             </div>
-                            <div className="border-t border-amber-500/10 pt-3 mt-1 space-y-2">
-                                {table.cart_data.map((item, idx) => (
-                                    <div key={idx} className="flex justify-between text-xs">
-                                        <span>
-                                            <span className="font-bold text-orange-600 mr-1.5">{item.quantity}x</span>
-                                            {item.name}
-                                        </span>
-                                        <span className="font-medium text-gray-600 dark:text-gray-400">
-                                            {formatPrice(item.price * item.quantity)}
-                                        </span>
+                            <div className="border-t border-amber-500/10 pt-3 mt-1 space-y-3">
+                                {table.cart_data.filter(req => req.items[0].product_id !== 0).map((req, reqIdx) => (
+                                    <div key={req.id || reqIdx} className="space-y-2 pb-2 border-b border-amber-500/10 last:border-0 last:pb-0">
+                                        <p className="text-[10px] font-bold text-amber-600 dark:text-amber-500">A nombre de: {req.customer_name}</p>
+                                        {req.items.map((item, idx) => (
+                                            <div key={idx} className="flex justify-between text-xs">
+                                                <span>
+                                                    <span className="font-bold text-orange-600 mr-1.5">{item.quantity}x</span>
+                                                    {item.name}
+                                                </span>
+                                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                                    {formatPrice(item.price * item.quantity)}
+                                                </span>
+                                            </div>
+                                        ))}
                                     </div>
                                 ))}
                                 <div className="flex justify-between border-t border-dashed border-amber-500/20 pt-2 font-black text-xs text-gray-900 dark:text-white">
                                     <span>Total en Espera:</span>
                                     <span>
-                                        {formatPrice(table.cart_data.reduce((sum, item) => sum + (item.price * item.quantity), 0))}
+                                        {formatPrice(
+                                            table.cart_data
+                                                .filter(req => req.items[0].product_id !== 0)
+                                                .flatMap(req => req.items)
+                                                .reduce((sum, item) => sum + (item.price * item.quantity), 0)
+                                        )}
                                     </span>
                                 </div>
                             </div>
