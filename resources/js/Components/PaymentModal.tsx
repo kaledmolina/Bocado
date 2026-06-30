@@ -5,11 +5,12 @@ interface PaymentModalProps {
     isOpen: boolean;
     title: string;
     totalAmount: number;
+    order?: any;
     onConfirm: (receivedAmount: number, changeAmount: number) => void;
     onCancel: () => void;
 }
 
-export default function PaymentModal({ isOpen, title, totalAmount, onConfirm, onCancel }: PaymentModalProps) {
+export default function PaymentModal({ isOpen, title, totalAmount, order, onConfirm, onCancel }: PaymentModalProps) {
     const [receivedStr, setReceivedStr] = useState('');
     const [change, setChange] = useState<number | null>(null);
 
@@ -59,6 +60,7 @@ export default function PaymentModal({ isOpen, title, totalAmount, onConfirm, on
                     <h3 className="text-base font-black flex items-center gap-2 text-gray-900 dark:text-white">
                         <CreditCard className="w-5 h-5 text-orange-500" />
                         {title}
+                        {order && <span className="ml-2 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2 py-1 rounded-lg">#{order.id.toString().padStart(5, '0')}</span>}
                     </h3>
                     <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                         <X className="w-5 h-5" />
@@ -66,6 +68,33 @@ export default function PaymentModal({ isOpen, title, totalAmount, onConfirm, on
                 </div>
 
                 <form onSubmit={handleConfirm} className="space-y-4">
+                    {/* Order Details (if available) */}
+                    {order && order.items && (
+                        <div className="pt-2 pb-2 border-b border-gray-100 dark:border-gray-800">
+                            {order.customer_name && (
+                                <div className="mb-2 text-xs font-bold text-orange-600 dark:text-orange-400">
+                                    A nombre de: {order.customer_name}
+                                </div>
+                            )}
+                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Platos a Cobrar</span>
+                            <div className="max-h-40 overflow-y-auto space-y-2 bg-gray-50 dark:bg-gray-950 p-3 rounded-xl border border-gray-100 dark:border-gray-850">
+                                {order.items.map((item: any, idx: number) => (
+                                    <div key={idx} className="flex justify-between items-start text-xs">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="font-extrabold text-orange-600">{item.quantity}x</span>
+                                                <span className="font-semibold text-gray-800 dark:text-gray-200">{item.product ? item.product.name : item.name}</span>
+                                            </div>
+                                        </div>
+                                        <span className="font-bold text-gray-700 dark:text-gray-300">
+                                            ${(item.price * item.quantity).toFixed(2)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Total Amount Alert */}
                     <div className="bg-gray-50 dark:bg-gray-950 p-4 rounded-2xl border border-gray-100 dark:border-gray-850 flex justify-between items-center">
                         <span className="text-xs font-bold text-gray-450 uppercase">Total a Cobrar</span>

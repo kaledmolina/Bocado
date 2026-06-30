@@ -68,6 +68,7 @@ export default function Orders({ orders }: Props) {
         isOpen: boolean;
         tableId: number;
         totalAmount: number;
+        order?: Order;
     }>({
         isOpen: false,
         tableId: 0,
@@ -88,11 +89,12 @@ export default function Orders({ orders }: Props) {
         onConfirm: () => {},
     });
 
-    const handlePay = (tableId: number, total: number) => {
+    const handlePay = (tableId: number, total: number, order?: Order) => {
         setPaymentModal({
             isOpen: true,
             tableId,
             totalAmount: total,
+            order,
         });
     };
 
@@ -413,7 +415,7 @@ export default function Orders({ orders }: Props) {
                                                                 <X className="w-4 h-4" />
                                                             </button>
                                                             <button
-                                                                onClick={() => handlePay(order.table_id, Number(order.total_amount))}
+                                                                onClick={() => handlePay(order.table_id, Number(order.total_amount), order)}
                                                                 className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/20 rounded-xl transition-all"
                                                                 title="Cobrar y Liberar"
                                                             >
@@ -574,7 +576,7 @@ export default function Orders({ orders }: Props) {
                                         Liberar Mesa
                                     </button>
                                     <button
-                                        onClick={() => handlePay(viewingOrder.table_id, Number(viewingOrder.total_amount))}
+                                        onClick={() => handlePay(viewingOrder.table_id, Number(viewingOrder.total_amount), viewingOrder)}
                                         className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-600 text-white text-xs font-black flex items-center gap-1.5 shadow-md shadow-orange-500/10 transition-all hover:scale-102 active:scale-98"
                                     >
                                         <CreditCard className="w-4 h-4" />
@@ -601,8 +603,9 @@ export default function Orders({ orders }: Props) {
                 isOpen={paymentModal.isOpen}
                 title="Registrar Cobro"
                 totalAmount={paymentModal.totalAmount}
+                order={paymentModal.order}
                 onConfirm={handleConfirmPayment}
-                onCancel={() => setPaymentModal(prev => ({ ...prev, isOpen: false }))}
+                onCancel={() => setPaymentModal(prev => ({ ...prev, isOpen: false, order: undefined }))}
             />
         </AdminLayout>
     );

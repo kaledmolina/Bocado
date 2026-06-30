@@ -330,6 +330,7 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
         isOpen: boolean;
         totalAmount: number;
         orderId?: number;
+        order?: any;
     }>({
         isOpen: false,
         totalAmount: 0,
@@ -353,6 +354,7 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
             isOpen: true,
             totalAmount: Number(order.total_amount),
             orderId: order.id,
+            order: order,
         });
     };
 
@@ -893,8 +895,9 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
                 isOpen={paymentModal.isOpen}
                 title="Registrar Cobro"
                 totalAmount={paymentModal.totalAmount}
+                order={paymentModal.order}
                 onConfirm={handleConfirmPayment}
-                onCancel={() => setPaymentModal(prev => ({ ...prev, isOpen: false }))}
+                onCancel={() => setPaymentModal(prev => ({ ...prev, isOpen: false, order: undefined }))}
             />
         </div>
     );
