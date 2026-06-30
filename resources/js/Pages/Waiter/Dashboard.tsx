@@ -24,17 +24,19 @@ interface Table {
             notes?: string;
         }>;
     }> | null;
-    active_order?: {
+    active_orders?: Array<{
         id: number;
         total_amount: number;
+        customer_name?: string;
         items: Array<{
             id: number;
             quantity: number;
+            price: number;
             product: {
                 name: string;
             }
         }>
-    }
+    }>;
 }
 
 interface HiringRestaurant {

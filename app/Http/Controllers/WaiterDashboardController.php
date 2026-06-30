@@ -48,7 +48,7 @@ class WaiterDashboardController extends Controller
 
         // Fetch tables with active orders to display items/totals
         $tables = Table::where('restaurant_id', $user->restaurant_id)
-            ->with(['activeOrder.items.product'])
+            ->with(['activeOrders.items.product'])
             ->get();
 
         // Check active shift
