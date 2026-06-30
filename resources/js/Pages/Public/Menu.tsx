@@ -725,7 +725,7 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
             </div>
 
             {/* Physical Scan Lock Overlay */}
-            {isScanExpired && (
+            {isScanExpired && table.is_active_for_order && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/80 backdrop-blur-md animate-in fade-in duration-300">
                     <div className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-[32px] max-w-md w-full p-6 shadow-2xl space-y-6 text-center animate-in zoom-in-95 duration-200">
                         
