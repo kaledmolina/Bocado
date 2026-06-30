@@ -194,6 +194,16 @@ export default function Dashboard({ tables = [], waiterName, restaurant, hiringR
         orders: [],
     });
 
+    const [releaseSelectionModal, setReleaseSelectionModal] = useState<{
+        isOpen: boolean;
+        tableId: number;
+        orders: any[];
+    }>({
+        isOpen: false,
+        tableId: 0,
+        orders: [],
+    });
+
     const [showNotifications, setShowNotifications] = useState(false);
     const notificationsRef = useRef<HTMLDivElement>(null);
 
@@ -245,17 +255,38 @@ export default function Dashboard({ tables = [], waiterName, restaurant, hiringR
         });
     };
 
-    const handleRelease = (e: React.MouseEvent, tableId: number) => {
+    const handleRelease = (e: React.MouseEvent, table: Table) => {
         e.stopPropagation();
         e.preventDefault();
+
+        if (!table.active_orders || table.active_orders.length === 0) {
+            promptReleaseOrder(table.id);
+            return;
+        }
+
+        if (table.active_orders.length > 1) {
+            setReleaseSelectionModal({
+                isOpen: true,
+                tableId: table.id,
+                orders: table.active_orders,
+            });
+        } else {
+            promptReleaseOrder(table.id, table.active_orders[0]);
+        }
+    };
+
+    const promptReleaseOrder = (tableId: number, order?: any) => {
         setConfirmModal({
             isOpen: true,
-            title: 'Liberar Mesa',
-            message: '¿Estás seguro de liberar esta mesa sin registrar pago? El pedido activo se cancelará.',
-            confirmLabel: 'Liberar Mesa',
+            title: order ? 'Cancelar Pedido' : 'Liberar Mesa',
+            message: order 
+                ? `¿Estás seguro de cancelar este pedido a nombre de ${order.customer_name}?` 
+                : '¿Estás seguro de liberar esta mesa? El pedido activo se cancelará si lo hay.',
+            confirmLabel: order ? 'Sí, Cancelar' : 'Liberar Mesa',
             onConfirm: () => {
-                router.post(route('tables.release', tableId));
+                router.post(route('tables.release', tableId), order ? { order_id: order.id } : {});
                 setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                setReleaseSelectionModal(prev => ({ ...prev, isOpen: false }));
             },
             isDanger: true,
         });
@@ -1170,7 +1201,7 @@ export default function Dashboard({ tables = [], waiterName, restaurant, hiringR
                                                 {!isFree ? (
                                                     <>
                                                         <button 
-                                                            onClick={(e) => handleRelease(e, table.id)} 
+                                                            onClick={(e) => handleRelease(e, table)} 
                                                             type="button" 
                                                             className={`py-2.5 px-3 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-900/30 border border-rose-100 dark:border-rose-900/30 text-rose-600 dark:text-rose-400 font-black rounded-xl text-[10.5px] transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 ${
                                                                 restaurant.waiters_can_collect_payment ? 'flex-1' : 'w-full'
@@ -1275,6 +1306,54 @@ export default function Dashboard({ tables = [], waiterName, restaurant, hiringR
                                     >
                                         <Coins className="w-3.5 h-3.5" />
                                         Cobrar este pedido
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Release Selection Modal */}
+            {releaseSelectionModal.isOpen && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in font-sans">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-6">
+                        <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-800 pb-3">
+                            <h3 className="text-lg font-black flex items-center gap-2 text-gray-900 dark:text-white">
+                                <Unlock className="w-6 h-6 text-rose-500" />
+                                Seleccionar Pedido a Cancelar
+                            </h3>
+                            <button onClick={() => setReleaseSelectionModal(prev => ({ ...prev, isOpen: false }))} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                            {releaseSelectionModal.orders.map((ord: any) => (
+                                <div key={ord.id} className="p-4 bg-gray-50 dark:bg-gray-850 border border-gray-150 dark:border-gray-800 rounded-2xl flex flex-col gap-3">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <span className="text-xs bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-2 py-1 rounded-lg font-bold">
+                                                #{ord.id.toString().padStart(5, '0')}
+                                            </span>
+                                            <div className="mt-1 font-bold text-gray-800 dark:text-gray-200 text-sm">
+                                                A nombre de: {ord.customer_name || 'Desconocido'}
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-xl font-black text-rose-600 dark:text-rose-400">
+                                                ${Number(ord.total_amount).toFixed(2)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 pt-2 line-clamp-2">
+                                        {ord.items?.map((item: any) => `${item.quantity}x ${item.product?.name}`).join(', ')}
+                                    </div>
+                                    <button
+                                        onClick={() => promptReleaseOrder(releaseSelectionModal.tableId, ord)}
+                                        className="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs flex justify-center items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                                    >
+                                        <Unlock className="w-3.5 h-3.5" />
+                                        Cancelar este pedido
                                     </button>
                                 </div>
                             ))}

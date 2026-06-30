@@ -52,6 +52,7 @@ interface Restaurant {
 interface ActiveOrder {
     id: number;
     total_amount: number;
+    customer_name?: string;
     items: Array<{
         id: number;
         quantity: number;
@@ -77,11 +78,11 @@ interface Props {
     categories: {
         [key: string]: Product[];
     };
-    activeOrder: ActiveOrder | null;
+    activeOrders: ActiveOrder[] | null;
     isDemo?: boolean;
 }
 
-export default function Menu({ table, restaurant, categories, activeOrder, isDemo }: Props) {
+export default function Menu({ table, restaurant, categories, activeOrders, isDemo }: Props) {
     const { errors } = usePage().props as any;
     const [theme, setTheme] = useState(() => {
         if (typeof window !== 'undefined') {
@@ -591,8 +592,8 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
                         )}
                     </div>
 
-                    {/* Active Order Summary (if any items ordered) */}
-                    {activeOrder && activeOrder.items.length > 0 && (
+                    {/* Active Orders Summary (if any items ordered) */}
+                    {activeOrders && activeOrders.length > 0 && (
                         <div className="bg-orange-500/10 border border-orange-500/20 rounded-3xl p-5 shadow-sm space-y-3">
                             <div
                                 onClick={() => setIsAccountOpen(!isAccountOpen)}
@@ -607,23 +608,35 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
                                 </div>
                                 <div className="text-right flex items-center gap-2">
                                     <span className="text-lg font-black text-orange-600 dark:text-orange-400">
-                                        {formatPrice(activeOrder.total_amount)}
+                                        {formatPrice(activeOrders.reduce((sum, ord) => sum + Number(ord.total_amount), 0))}
                                     </span>
                                     <span className="text-gray-400 text-xs">{isAccountOpen ? '▲' : '▼'}</span>
                                 </div>
                             </div>
 
                             {isAccountOpen && (
-                                <div className="border-t border-orange-500/10 pt-3 mt-1 space-y-2">
-                                    {activeOrder.items.map((item) => (
-                                        <div key={item.id} className="flex justify-between text-xs">
-                                            <span>
-                                                <span className="font-bold text-orange-600 mr-1.5">{item.quantity}x</span>
-                                                {item.product.name}
-                                            </span>
-                                            <span className="font-medium text-gray-600 dark:text-gray-400">
-                                                {formatPrice(item.price * item.quantity)}
-                                            </span>
+                                <div className="border-t border-orange-500/10 pt-3 mt-1 space-y-4">
+                                    {activeOrders.map(ord => (
+                                        <div key={ord.id} className="space-y-2">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs font-black text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-md">
+                                                    #{ord.id.toString().padStart(5, '0')} {ord.customer_name ? `- ${ord.customer_name}` : ''}
+                                                </span>
+                                                <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                                                    {formatPrice(ord.total_amount)}
+                                                </span>
+                                            </div>
+                                            {ord.items.map((item) => (
+                                                <div key={item.id} className="flex justify-between text-xs pl-2 border-l-2 border-orange-200 dark:border-orange-900/50">
+                                                    <span>
+                                                        <span className="font-bold text-orange-600 mr-1.5">{item.quantity}x</span>
+                                                        {item.product.name}
+                                                    </span>
+                                                    <span className="font-medium text-gray-600 dark:text-gray-400">
+                                                        {formatPrice(item.price * item.quantity)}
+                                                    </span>
+                                                </div>
+                                            ))}
                                         </div>
                                     ))}
                                 </div>
@@ -867,7 +880,7 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
 
 
             {/* Sticky Floating Account Summary for Client */}
-            {activeOrder && activeOrder.items.length > 0 && (
+            {activeOrders && activeOrders.length > 0 && (
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-md bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-[24px] p-4 shadow-xl shadow-orange-600/30 border border-orange-500/20 flex items-center justify-between transition-all hover:scale-[1.01] animate-in slide-in-from-bottom-5 duration-300">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg">
@@ -875,7 +888,7 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
                         </div>
                         <div>
                             <span className="text-[10px] uppercase font-bold tracking-wider opacity-90 block leading-tight">Total Consumido</span>
-                            <span className="text-lg font-black">{formatPrice(activeOrder.total_amount)}</span>
+                            <span className="text-lg font-black">{formatPrice(activeOrders.reduce((sum, ord) => sum + Number(ord.total_amount), 0))}</span>
                         </div>
                     </div>
                     <button

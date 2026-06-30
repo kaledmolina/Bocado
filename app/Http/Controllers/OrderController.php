@@ -41,17 +41,17 @@ class OrderController extends Controller
             ->get()
             ->groupBy('category');
 
-        // Fetch current active order items if occupied or pending payment (client can see their bill!)
-        $activeOrder = Order::where('table_id', $table->id)
+        // Fetch current active orders if occupied or pending payment (client can see their bill!)
+        $activeOrders = Order::where('table_id', $table->id)
             ->where('status', 'pending')
             ->with('items.product')
-            ->first();
+            ->get();
 
         return Inertia::render('Public/Menu', [
             'table' => $table,
             'restaurant' => $restaurant,
             'categories' => $products,
-            'activeOrder' => $activeOrder,
+            'activeOrders' => $activeOrders,
             'isDemo' => request('demo') === 'true' || session('is_demo_user', false),
         ]);
     }
@@ -256,16 +256,21 @@ class OrderController extends Controller
     /**
      * Release table without payment (cancel pending order).
      */
-    public function releaseTable(Table $table)
+    public function releaseTable(Illuminate\Http\Request $request, Table $table)
     {
         $user = Auth::user();
         if ($table->restaurant_id !== $user->restaurant_id) {
             abort(403);
         }
 
-        DB::transaction(function () use ($table) {
+        $orderId = $request->input('order_id');
+
+        DB::transaction(function () use ($table, $orderId) {
             $orders = Order::where('table_id', $table->id)
                 ->where('status', 'pending')
+                ->when($orderId, function($query) use ($orderId) {
+                    return $query->where('id', $orderId);
+                })
                 ->get();
 
             foreach ($orders as $order) {
@@ -274,12 +279,16 @@ class OrderController extends Controller
                 ]);
             }
 
-            $table->update([
-                'status' => 'free',
-                'cart_data' => null,
-                'is_active_for_order' => true,
-            ]);
-            $table->generateTempPin();
+            $remainingPending = Order::where('table_id', $table->id)->where('status', 'pending')->count();
+
+            if ($remainingPending === 0) {
+                $table->update([
+                    'status' => 'free',
+                    'cart_data' => null,
+                    'is_active_for_order' => true,
+                ]);
+                $table->generateTempPin();
+            }
 
             \App\Models\TableLog::create([
                 'restaurant_id' => $table->restaurant_id,
@@ -288,11 +297,12 @@ class OrderController extends Controller
                 'action' => 'released',
                 'details' => [
                     'cancelled_order_ids' => $orders->pluck('id'),
+                    'table_released' => $remainingPending === 0
                 ]
             ]);
         });
 
-        return redirect()->back()->with('success', 'Mesa liberada con nuevo PIN.');
+        return redirect()->back()->with('success', 'Mesa o pedido liberado correctamente.');
     }
 
     /**
