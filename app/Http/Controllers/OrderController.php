@@ -190,9 +190,18 @@ class OrderController extends Controller
             return redirect()->back()->with('error', '⚠️ No se puede procesar el pago: la caja registradora está cerrada. Por favor abre la caja antes de cobrar.');
         }
 
+        $orderId = $request->input('order_id');
+        
         $orders = Order::where('table_id', $table->id)
             ->where('status', 'pending')
+            ->when($orderId, function($query) use ($orderId) {
+                return $query->where('id', $orderId);
+            })
             ->get();
+
+        if ($orders->isEmpty()) {
+            return redirect()->back()->with('error', 'No se encontraron pedidos pendientes para cobrar.');
+        }
             
         $totalTableAmount = $orders->sum('total_amount');
 
@@ -210,20 +219,22 @@ class OrderController extends Controller
                 foreach ($orders as $idx => $order) {
                     $order->update([
                         'status' => 'paid',
-                        // Assign received amount and change only to the first order to avoid duplication in cash reports, or spread it?
-                        // Usually it's better to assign it to the first order of the batch.
                         'received_amount' => $idx === 0 ? $receivedAmount : null,
                         'change_amount' => $idx === 0 ? $changeAmount : null,
                     ]);
                 }
             }
 
-            $table->update([
-                'status' => 'free',
-                'cart_data' => null,
-                'is_active_for_order' => true,
-            ]);
-            $table->generateTempPin();
+            $remainingPending = Order::where('table_id', $table->id)->where('status', 'pending')->count();
+            
+            if ($remainingPending === 0) {
+                $table->update([
+                    'status' => 'free',
+                    'cart_data' => null,
+                    'is_active_for_order' => true,
+                ]);
+                $table->generateTempPin();
+            }
 
             \App\Models\TableLog::create([
                 'restaurant_id' => $table->restaurant_id,
@@ -234,6 +245,7 @@ class OrderController extends Controller
                     'order_ids' => $orders->pluck('id'),
                     'total_amount' => $totalTableAmount,
                     'received_amount' => $receivedAmount,
+                    'table_released' => $remainingPending === 0
                 ]
             ]);
         });

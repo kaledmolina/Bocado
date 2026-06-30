@@ -329,12 +329,13 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
     const [paymentModal, setPaymentModal] = useState<{
         isOpen: boolean;
         totalAmount: number;
+        orderId?: number;
     }>({
         isOpen: false,
         totalAmount: 0,
     });
 
-    const handlePay = () => {
+    const handlePayAll = () => {
         const total = activeOrders.reduce((sum, order) => sum + Number(order.total_amount), 0);
         if (total === 0 && activeOrders.length === 0) {
             setToast({ message: 'No hay pedidos activos para cobrar.', type: 'error' });
@@ -343,6 +344,15 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
         setPaymentModal({
             isOpen: true,
             totalAmount: total,
+            orderId: undefined
+        });
+    };
+
+    const handlePayOrder = (order: ActiveOrder) => {
+        setPaymentModal({
+            isOpen: true,
+            totalAmount: Number(order.total_amount),
+            orderId: order.id,
         });
     };
 
@@ -350,6 +360,7 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
         router.post(route('tables.pay', table.id), {
             received_amount: receivedAmount,
             change_amount: changeAmount,
+            order_id: paymentModal.orderId,
         }, {
             onFinish: () => {
                 setPaymentModal(prev => ({ ...prev, isOpen: false }));
@@ -721,7 +732,18 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <span className="font-black text-emerald-700 dark:text-emerald-300">${Number(order.total_amount).toFixed(2)}</span>
+                                                <div className="flex flex-col items-end gap-1">
+                                                    <span className="font-black text-emerald-700 dark:text-emerald-300">${Number(order.total_amount).toFixed(2)}</span>
+                                                    {restaurant.waiters_can_collect_payment && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handlePayOrder(order)}
+                                                            className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-black uppercase tracking-wide transition-colors shadow-sm"
+                                                        >
+                                                            Cobrar
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
 
                                             <div className="space-y-2 py-1">
@@ -849,10 +871,10 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
                             </button>
                             {restaurant.waiters_can_collect_payment && (
                                 <button
-                                    onClick={handlePay}
+                                    onClick={handlePayAll}
                                     className="flex-1 md:flex-none py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-[0.98]"
                                 >
-                                    💳 Cobrar Cuenta
+                                    💳 Cobrar Todo
                                 </button>
                             )}
                         </>
