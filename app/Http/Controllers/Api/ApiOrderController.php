@@ -98,7 +98,31 @@ class ApiOrderController extends Controller
             ], 400);
         }
 
-        // Validate PIN if security is active
+        // Handle items
+        $items = $request->input('items');
+        if (empty($items) || !is_array($items)) {
+            // Default: Call Waiter (No PIN required)
+            $table->update([
+                'cart_data' => [
+                    [
+                        'product_id' => 0,
+                        'name' => 'Llamado al mesero 🛎️',
+                        'price' => 0.00,
+                        'quantity' => 1,
+                        'notes' => 'El cliente solicita atención en la mesa.'
+                    ]
+                ],
+                'status' => 'occupied',
+                'pin_requested' => false,
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Mesero solicitado correctamente.'
+            ]);
+        }
+
+        // Validate PIN if security is active (only applies to actual orders)
         if ($restaurant->security_table_pin) {
             $enteredPin = $request->input('pin');
             if (empty($table->temp_pin) || empty($table->pin_updated_at) || now()->diffInMinutes($table->pin_updated_at) >= 5) {
@@ -115,34 +139,6 @@ class ApiOrderController extends Controller
                     'message' => 'El PIN ingresado es incorrecto.'
                 ], 400);
             }
-        }
-
-        // Handle items
-        $items = $request->input('items');
-        if (empty($items) || !is_array($items)) {
-            // Default: Call Waiter
-            $table->update([
-                'cart_data' => [
-                    [
-                        'product_id' => 0,
-                        'name' => 'Llamado al mesero 🛎️',
-                        'price' => 0.00,
-                        'quantity' => 1,
-                        'notes' => 'El cliente solicita atención en la mesa.'
-                    ]
-                ],
-                'status' => 'occupied',
-                'pin_requested' => false,
-            ]);
-
-            if ($restaurant->security_table_pin) {
-                $table->getOrGenerateDynamicPin(true);
-            }
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Mesero solicitado correctamente.'
-            ]);
         }
 
         $finalItems = [];

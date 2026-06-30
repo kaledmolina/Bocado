@@ -340,24 +340,24 @@ class OrderController extends Controller
             return back()->with('success', 'Solicitud de PIN enviada al mesero.');
         }
 
-        // Validate Table PIN if security is enabled (applies to both Action B and Action C)
-        if ($restaurant->security_table_pin) {
-            $enteredPin = $request->input('pin');
-            
-            // Verify PIN exists and is not expired (5 minutes)
-            if (empty($table->temp_pin) || empty($table->pin_updated_at) || now()->diffInMinutes($table->pin_updated_at) >= 5) {
-                // Regenerate a new one so waiter can see it and dictate it
-                $table->getOrGenerateDynamicPin(true);
-                return back()->withErrors(['security' => 'El PIN ha expirado o no es válido. Por favor, solicita el nuevo PIN al mesero.']);
-            }
-
-            if ($table->temp_pin !== $enteredPin) {
-                return back()->withErrors(['security' => 'El PIN ingresado es incorrecto.']);
-            }
-        }
-
         // Action B: Submit Autopedido (actual order)
         if ($request->has('items')) {
+            // Validate Table PIN if security is enabled (only applies to actual orders)
+            if ($restaurant->security_table_pin) {
+                $enteredPin = $request->input('pin');
+                
+                // Verify PIN exists and is not expired (5 minutes)
+                if (empty($table->temp_pin) || empty($table->pin_updated_at) || now()->diffInMinutes($table->pin_updated_at) >= 5) {
+                    // Regenerate a new one so waiter can see it and dictate it
+                    $table->getOrGenerateDynamicPin(true);
+                    return back()->withErrors(['security' => 'El PIN ha expirado o no es válido. Por favor, solicita el nuevo PIN al mesero.']);
+                }
+
+                if ($table->temp_pin !== $enteredPin) {
+                    return back()->withErrors(['security' => 'El PIN ingresado es incorrecto.']);
+                }
+            }
+
             // Map items with database prices and names to prevent tampering
             $items = $request->input('items');
             if (empty($items) || !is_array($items)) {
@@ -399,7 +399,7 @@ class OrderController extends Controller
             return back()->with('success', 'Pedido enviado. Esperando aprobación del mesero.');
         }
 
-        // Action C: Default call waiter
+        // Action C: Default call waiter (No PIN required)
         $table->update([
             'cart_data' => [
                 [
@@ -413,11 +413,6 @@ class OrderController extends Controller
             'status' => 'occupied',
             'pin_requested' => false,
         ]);
-
-        // Consumir/Regenerar el PIN dinámico inmediatamente
-        if ($restaurant->security_table_pin) {
-            $table->getOrGenerateDynamicPin(true);
-        }
 
         return back()->with('success', 'Mesero solicitado correctamente. Te atenderá en breve.');
     }

@@ -25,7 +25,7 @@ class Restaurant extends Model
     protected $attributes = [
         'is_active' => true,
         'is_hiring' => false,
-        'waiters_can_collect_payment' => true,
+        'waiters_can_collect_payment' => false,
         'security_waiter_activation' => false,
         'security_table_pin' => false,
         'security_require_physical_scan' => false,

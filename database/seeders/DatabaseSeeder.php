@@ -32,7 +32,11 @@ class DatabaseSeeder extends Seeder
             'name' => 'El Rinconcito Italiano',
             'address' => 'Av. Central 456, Zona G',
             'phone' => '+54 11 2233-4455',
-            'security_table_pin' => true,
+            'security_table_pin' => false,
+            'security_waiter_activation' => false,
+            'security_require_physical_scan' => false,
+            'waiters_can_collect_payment' => false,
+            'client_can_call_waiter' => true,
             'is_demo' => true,
         ]);
 
