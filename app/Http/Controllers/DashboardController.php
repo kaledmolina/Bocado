@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\CashSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -175,6 +176,19 @@ class DashboardController extends Controller
             return redirect()->back()->with('error', 'El restaurante no es de demostración.');
         }
 
+        // Reset restaurant details
+        $restaurant->update([
+            'name' => 'El Rinconcito Italiano',
+            'address' => 'Av. Central 456, Zona G',
+            'phone' => '+54 11 2233-4455',
+            'security_waiter_activation' => false,
+            'security_table_pin' => true,
+            'security_require_physical_scan' => false,
+            'primary_color' => '#f97316',
+            'secondary_color' => '#1e293b',
+            'welcome_subtitle' => '¡Pide desde tu mesa de forma rápida!',
+        ]);
+
         // Delete orders
         $orderIds = Order::where('restaurant_id', $restaurant->id)->pluck('id');
         DB::table('order_items')->whereIn('order_id', $orderIds)->delete();
@@ -191,6 +205,26 @@ class DashboardController extends Controller
             ->whereNotIn('email', ['owner@rinconcito.com', 'pedro@rinconcito.com', 'maria@rinconcito.com'])
             ->delete();
 
+        // Reset essential users to default state
+        User::where('email', 'owner@rinconcito.com')->update([
+            'name' => 'Propietario Rinconcito',
+            'password' => Hash::make('password'),
+            'role' => 'admin',
+            'is_active' => true,
+        ]);
+        User::where('email', 'pedro@rinconcito.com')->update([
+            'name' => 'Pedro Mesero',
+            'password' => Hash::make('password'),
+            'role' => 'waiter',
+            'is_active' => true,
+        ]);
+        User::where('email', 'maria@rinconcito.com')->update([
+            'name' => 'Maria Mesera',
+            'password' => Hash::make('password'),
+            'role' => 'waiter',
+            'is_active' => true,
+        ]);
+
         // Delete new products created during testing
         Product::where('restaurant_id', $restaurant->id)
             ->whereNotIn('name', [
@@ -202,6 +236,44 @@ class DashboardController extends Controller
                 'Tiramisú Clásico'
             ])
             ->delete();
+
+        // Reset default products
+        Product::where('restaurant_id', $restaurant->id)->where('name', 'Pizza Margarita')->update([
+            'description' => 'Salsa de tomate, mozzarella fresca, albahaca y aceite de oliva.',
+            'price' => 15.00,
+            'category' => 'Platos Fuertes',
+            'is_available' => true,
+        ]);
+        Product::where('restaurant_id', $restaurant->id)->where('name', 'Lasagna Boloñesa')->update([
+            'description' => 'Capas de pasta rellenas de carne boloñesa, bechamel y queso gratinado.',
+            'price' => 18.50,
+            'category' => 'Platos Fuertes',
+            'is_available' => true,
+        ]);
+        Product::where('restaurant_id', $restaurant->id)->where('name', 'Bruschetta de Tomate')->update([
+            'description' => 'Pan tostado con ajo, tomates picados, albahaca y aceite de oliva virgen.',
+            'price' => 8.00,
+            'category' => 'Entradas',
+            'is_available' => true,
+        ]);
+        Product::where('restaurant_id', $restaurant->id)->where('name', 'Coca Cola')->update([
+            'description' => 'Refresco de cola de 350ml en botella de vidrio.',
+            'price' => 3.00,
+            'category' => 'Bebidas',
+            'is_available' => true,
+        ]);
+        Product::where('restaurant_id', $restaurant->id)->where('name', 'Limonada Natural')->update([
+            'description' => 'Limonada refrescante endulzada y con menta fresca.',
+            'price' => 3.50,
+            'category' => 'Bebidas',
+            'is_available' => true,
+        ]);
+        Product::where('restaurant_id', $restaurant->id)->where('name', 'Tiramisú Clásico')->update([
+            'description' => 'Postre italiano con bizcochos soletilla café, mascarpone y cacao.',
+            'price' => 6.50,
+            'category' => 'Postres',
+            'is_available' => true,
+        ]);
 
         // Delete new tables created during testing
         Table::where('restaurant_id', $restaurant->id)
