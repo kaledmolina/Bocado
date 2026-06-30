@@ -496,13 +496,31 @@ class OrderController extends Controller
     }
 
     /**
-     * Clear client cart from table.
+     * Clear specific client request or entire cart from table.
      */
-    public function clearClientCart(Table $table)
+    public function clearClientCart(Table $table, Request $request)
     {
         $user = Auth::user();
         if ($table->restaurant_id !== $user->restaurant_id) {
             abort(403);
+        }
+
+        $requestId = $request->input('request_id');
+
+        if ($requestId && is_array($table->cart_data)) {
+            $updatedCart = array_filter($table->cart_data, function($req) use ($requestId) {
+                return isset($req['id']) && $req['id'] !== $requestId;
+            });
+
+            // Re-index array
+            $updatedCart = array_values($updatedCart);
+
+            $table->update([
+                'cart_data' => empty($updatedCart) ? null : $updatedCart,
+                'pin_requested' => empty($updatedCart) ? false : $table->pin_requested,
+            ]);
+
+            return back()->with('success', 'Solicitud descartada/atendida.');
         }
 
         $table->update([
@@ -510,7 +528,7 @@ class OrderController extends Controller
             'pin_requested' => false,
         ]);
 
-        return back()->with('success', 'Pedido solicitado del cliente cancelado/limpiado.');
+        return back()->with('success', 'Todas las solicitudes fueron limpiadas.');
     }
 
     /**
