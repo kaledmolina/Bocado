@@ -214,6 +214,18 @@ class OrderController extends Controller
                 'is_active_for_order' => true,
             ]);
             $table->generateTempPin();
+
+            \App\Models\TableLog::create([
+                'restaurant_id' => $table->restaurant_id,
+                'table_id' => $table->id,
+                'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                'action' => 'paid',
+                'details' => [
+                    'order_id' => $order ? $order->id : null,
+                    'total_amount' => $order ? $order->total_amount : 0,
+                    'received_amount' => $receivedAmount,
+                ]
+            ]);
         });
 
         return redirect()->back()->with('success', 'Mesa cobrada y liberada con nuevo PIN.');
@@ -246,6 +258,16 @@ class OrderController extends Controller
                 'is_active_for_order' => true,
             ]);
             $table->generateTempPin();
+
+            \App\Models\TableLog::create([
+                'restaurant_id' => $table->restaurant_id,
+                'table_id' => $table->id,
+                'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                'action' => 'released',
+                'details' => [
+                    'cancelled_order_id' => $order ? $order->id : null,
+                ]
+            ]);
         });
 
         return redirect()->back()->with('success', 'Mesa liberada con nuevo PIN.');
@@ -457,6 +479,14 @@ class OrderController extends Controller
         }
 
         $table->save();
+
+        \App\Models\TableLog::create([
+            'restaurant_id' => $table->restaurant_id,
+            'table_id' => $table->id,
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+            'action' => $table->is_active_for_order ? 'activated' : 'deactivated',
+            'details' => []
+        ]);
 
         return back()->with('success', $table->is_active_for_order ? 'Mesa activada para autopedidos.' : 'Mesa desactivada.');
     }

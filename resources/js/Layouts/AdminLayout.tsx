@@ -81,6 +81,7 @@ export default function AdminLayout({ children, title }: Props) {
                         { href: route('admin.waiters'), icon: Users, label: 'Meseros', active: route().current('admin.waiters') },
                         { href: route('admin.orders'), icon: ClipboardList, label: 'Pedidos', active: route().current('admin.orders') },
                         { href: route('admin.cash'), icon: DollarSign, label: 'Caja', active: route().current('admin.cash') },
+                        { href: route('admin.table-logs'), icon: ClipboardList, label: 'Historial Mesas', active: route().current('admin.table-logs') },
                         { href: route('admin.settings'), icon: Settings, label: 'Configuración', active: route().current('admin.settings') }
                     ].map((item, idx) => {
                         const Icon = item.icon;

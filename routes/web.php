@@ -145,6 +145,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/cash/open', [CashSessionController::class, 'open'])->name('admin.cash.open');
     Route::post('/admin/cash/close', [CashSessionController::class, 'close'])->name('admin.cash.close');
 
+    // Admin Table Logs
+    Route::get('/admin/table-logs', [\App\Http\Controllers\TableLogController::class, 'index'])->name('admin.table-logs');
+
     // Admin toggle view mode (admin <-> waiter)
     Route::post('/admin/toggle-view-mode', [DashboardController::class, 'toggleViewMode'])->name('admin.toggle-view-mode');
 
