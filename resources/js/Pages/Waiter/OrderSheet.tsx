@@ -236,7 +236,7 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [cart, setCart] = useState<OrderItem[]>([]);
 
-    const [customerName, setCustomerName] = useState<string>('General');
+    const [customerName, setCustomerName] = useState<string>('');
 
     // Cart is always empty initially, ready for a new order
     useEffect(() => {
@@ -303,11 +303,17 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (customerName.trim() === '') {
+            setToast({ message: 'Por favor ingresa a nombre de quién es el pedido.', type: 'error' });
+            return;
+        }
+
         post(route('waiter.order.save', table.id), {
             preserveScroll: true,
             onSuccess: () => {
                 setCart([]);
-                setCustomerName('General');
+                setCustomerName('');
             }
         });
     };
@@ -420,11 +426,11 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
                 onSuccess: () => {
                     setToast({ message: `Pedido de ${clientName} aprobado`, type: 'success' });
                     setCart([]);
-                    setCustomerName('General');
+                    setCustomerName('');
                     // Reset form
                     setData(data => ({
                         ...data,
-                        customer_name: 'General',
+                        customer_name: '',
                         request_id: '',
                         items: []
                     }));
@@ -550,7 +556,7 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
                                 value={customerName}
                                 onChange={e => setCustomerName(e.target.value)}
                                 className="flex-1 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 text-xs focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:outline-none dark:text-white"
-                                placeholder="General"
+                                placeholder="Escribe el nombre del cliente..."
                             />
                         </div>
 
