@@ -226,11 +226,11 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
 
     const handleSendOrder = () => {
         if (cart.length === 0 || isLockedOut) return;
-        
-        if (!customerName.trim()) {
-            setShowNameModal(true);
-            return;
-        }
+        setShowNameModal(true);
+    };
+
+    const submitOrder = () => {
+        if (!customerName.trim() || isLockedOut) return;
 
         setIsSending(true);
         router.post(route('qr.request-order', table.qr_code_token), {
@@ -242,11 +242,13 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
                 setIsSending(false);
                 setCart([]);
                 setIsCartOpen(false);
+                setShowNameModal(false);
                 sessionStorage.removeItem('entered_pin_table_' + table.id);
                 setPinInput('');
             },
             onError: () => {
                 setIsSending(false);
+                setShowNameModal(false);
             }
         });
     };
@@ -1031,16 +1033,11 @@ export default function Menu({ table, restaurant, categories, activeOrder, isDem
                                 Cancelar
                             </button>
                             <button
-                                onClick={() => {
-                                    if (customerName.trim()) {
-                                        setShowNameModal(false);
-                                        // The user will have to click Enviar Pedido / Llamar mesero again.
-                                    }
-                                }}
-                                disabled={!customerName.trim()}
+                                onClick={submitOrder}
+                                disabled={!customerName.trim() || isSending}
                                 className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-black disabled:opacity-50"
                             >
-                                Continuar
+                                {isSending ? 'Enviando...' : 'Enviar Pedido'}
                             </button>
                         </div>
                     </div>

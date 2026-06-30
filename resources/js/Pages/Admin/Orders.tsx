@@ -44,6 +44,7 @@ interface Order {
         name: string;
     } | null;
     items: OrderItem[];
+    customer_name?: string;
     received_amount?: number | null;
     change_amount?: number | null;
 }
@@ -354,6 +355,9 @@ export default function Orders({ orders }: Props) {
                                                 {order.table.number}
                                             </td>
                                             <td className="px-6 py-4 max-w-xs">
+                                                <div className="text-xs text-orange-600 dark:text-orange-400 font-bold mb-1">
+                                                    A nombre de: {order.customer_name || 'Desconocido'}
+                                                </div>
                                                 <div className="truncate font-medium text-gray-800 dark:text-gray-250">
                                                     {order.items.map(item => `${item.quantity}x ${item.product.name}`).join(', ')}
                                                 </div>

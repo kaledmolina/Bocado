@@ -869,14 +869,6 @@ export default function OrderSheet({ table, products, activeOrders = [], restaur
                             >
                                 ❌ Liberar Mesa
                             </button>
-                            {restaurant.waiters_can_collect_payment && (
-                                <button
-                                    onClick={handlePayAll}
-                                    className="flex-1 md:flex-none py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-[0.98]"
-                                >
-                                    💳 Cobrar Todo
-                                </button>
-                            )}
                         </>
                     )}
                     <button
