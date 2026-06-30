@@ -1,6 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import React, { useState, useEffect, useRef } from 'react';
-import { Sun, Moon, LogOut, Check, Trash2, Coffee, HelpCircle, DollarSign, Layers, Clock, Star, Briefcase, Plus, Bell, Key, Lock, Unlock, Coins, CheckSquare, MessageSquare } from 'lucide-react';
+import { Sun, Moon, LogOut, Check, Trash2, Coffee, HelpCircle, DollarSign, Layers, Clock, Star, Briefcase, Plus, Bell, Key, Lock, Unlock, Coins, CheckSquare, MessageSquare, X } from 'lucide-react';
 import ConfirmModal from '@/Components/ConfirmModal';
 import Toast from '@/Components/Toast';
 import PaymentModal from '@/Components/PaymentModal';
@@ -473,7 +473,7 @@ export default function Dashboard({ tables = [], waiterName, restaurant, hiringR
                 title: table.number,
                 description: 'Solicita la cuenta 💵',
                 actionLabel: '💵 Cobrar',
-                onAction: () => handlePay({ stopPropagation: () => {} } as any, table.id, Number(table.active_order?.total_amount || 0))
+                onAction: () => handlePay({ stopPropagation: () => {}, preventDefault: () => {} } as any, table)
             });
         }
         return acc;
@@ -1122,9 +1122,9 @@ export default function Dashboard({ tables = [], waiterName, restaurant, hiringR
                                                             </button>
                                                         </div>
 
-                                                        {!isFree && table.active_order && (
+                                                        {!isFree && table.active_orders && table.active_orders.length > 0 && (
                                                             <div className="bg-gray-900 text-white dark:bg-white dark:text-gray-950 px-2.5 py-1.5 rounded-xl text-[11px] font-black">
-                                                                ${table.active_order.total_amount.toFixed(2)}
+                                                                ${table.active_orders.reduce((sum, order) => sum + Number(order.total_amount), 0).toFixed(2)}
                                                             </div>
                                                         )}
                                                     </div>
